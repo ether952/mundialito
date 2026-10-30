@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mundial de Alfajores - 32 Participantes</title>
+  <meta name="description" content="Mundial de 32 Alfajores en la oficina: llave completa interactiva, selección de partidos de hoy, votación en vivo y avance automático.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-left">
+      <div class="header-titles">
+        <h1>🏆 MUNDIAL DE ALFAJORES <span class="badge-32">32</span></h1>
+      </div>
+      <div class="connection-pill" id="connection-pill" title="Estado de sincronización">
+        <span>🟡</span> <span>CONECTANDO...</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- QR Button for Coworkers Mobile Devices -->
+      <button class="btn-qr" id="btn-open-qr" title="Abrir código QR para conectar celulares">
+        📱 Conectar Celulares
+      </button>
+
+      <!-- Fill Remaining Slots Button -->
+      <button class="btn" id="btn-fill-all" title="Llenar casilleros vacíos con los 32 alfajores">
+        🎲 Completar Llave
+      </button>
+
+      <!-- Reset Bracket Button -->
+      <button class="btn" id="btn-clear" title="Vaciar toda la llave">
+        🗑️ Vaciar
+      </button>
+
+      <!-- Print Button -->
+      <button class="btn" id="btn-print" title="Imprimir la llave">
+        🖨️ Imprimir
+      </button>
+    </div>
+  </header>
+
+  <!-- Partido de Hoy / Active Duel Banner -->
+  <section class="duel-banner-wrap" id="active-duel-panel">
+    <!-- Populated dynamically: Shows Alfajor A vs Alfajor B with vote buttons and Terminar button -->
+  </section>
+
+  <!-- Main App Layout: Sidebar with Lupa (Left) + 32 Bracket (Right) -->
+  <div class="app-layout">
+
+    <!-- Left Sidebar: Catalog & Search Lupa -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-header-top">
+          <h2>Alfajores</h2>
+          <span class="badge-count" id="count-badge">32</span>
+        </div>
+
+        <!-- Search Input with Lupa -->
+        <div class="search-box-wrap">
+          <span class="search-lupa">🔍</span>
+          <input type="text" id="search-input" class="search-box" placeholder="Buscar alfajor..." />
+        </div>
+      </div>
+
+      <!-- Selection Hint -->
+      <div class="selection-hint" id="selection-hint"></div>
+
+      <!-- Alfajores List -->
+      <div class="sidebar-list" id="alfajores-list">
+        <!-- Rendered dynamically with real images -->
+      </div>
+
+      <!-- Add Custom Alfajor -->
+      <form class="custom-add-form" id="custom-form">
+        <div class="custom-add-form-row">
+          <input type="text" id="custom-name" placeholder="+ Nuevo alfajor..." required maxlength="30" style="flex: 1;" />
+          <button type="submit" class="btn" style="padding: 4px 8px; font-size: 11px;">Sumar</button>
+        </div>
+        <input type="url" id="custom-img" placeholder="URL de imagen opcional..." style="width: 100%;" />
+      </form>
+    </aside>
+
+    <!-- Right: 32 Bracket Stage Viewport -->
+    <main class="bracket-viewport" id="bracket-viewport">
+
+      <!-- Floating Zoom & Fit Controls -->
+      <div class="zoom-floating-bar">
+        <button class="btn" id="btn-fit-screen" style="padding: 3px 8px; font-size: 11px;">
+          🔲 Ver Llave Completa
+        </button>
+        <button class="zoom-btn" id="btn-zoom-out" title="Alejar">-</button>
+        <span class="zoom-val" id="zoom-text">100%</span>
+        <button class="zoom-btn" id="btn-zoom-in" title="Acercar">+</button>
+        <button class="zoom-btn" id="btn-zoom-reset" title="Restablecer zoom al 100%">1:1</button>
+      </div>
+
+      <!-- Bracket Canvas -->
+      <div class="bracket-canvas" id="bracket-canvas">
+        <div class="bracket-stage" id="bracket-stage">
+          <!-- 32 bracket rendered dynamically by app.js -->
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- QR Code Modal -->
+  <div class="modal-overlay" id="qr-modal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeQRModal()">✕</button>
+      <h3 style="font-size: 18px; font-weight: 900; text-transform: uppercase;">📱 Conectar Celulares</h3>
+      <p style="font-size: 12px; color: #64748b; margin-top: 4px;">
+        Escaneá con la cámara de tu celular conectado a la red Wi-Fi de la oficina para ver el cuadro y votar en vivo.
+      </p>
+
+      <div class="qr-image-frame">
+        <img id="qr-code-img" src="" alt="Código QR del Mundial" />
+      </div>
+
+      <div class="qr-url-box" id="qr-url-text">http://localhost:3000</div>
+
+      <button class="btn" onclick="copyOfficeLink()" style="width: 100%; justify-content: center; padding: 9px; background: #0f172a; color: #fff;">
+        📋 Copiar Enlace para Compartir en Slack / WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <!-- Confetti Celebration Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
