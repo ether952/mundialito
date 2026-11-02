@@ -2,7 +2,6 @@
   "name": "mundialito",
   "version": "1.0.0",
   "description": "Mundial de Alfajores",
-  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
