@@ -22,6 +22,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/styles.css', (req, res) => {
+  res.type('text/css').sendFile(path.join(__dirname, 'styles.css'));
+});
+
+app.get('/app.js', (req, res) => {
+  res.type('application/javascript').sendFile(path.join(__dirname, 'app.js'));
+});
+
 try {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
