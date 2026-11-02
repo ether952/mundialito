@@ -15,10 +15,19 @@ const DATA_DIR = path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'mundial_state.json');
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// Root route so Vercel / Serverless always serves index.html without "Cannot GET /"
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (e) {
+  // Read-only filesystem in serverless environments
 }
 
 function getLocalIP() {
@@ -385,13 +394,17 @@ app.post('/api/alfajor/delete', (req, res) => {
   res.json({ success: true });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log('\n=============================================================');
-  console.log('   🏆 MUNDIAL DE ALFAJORES (32) - SERVIDOR DE OFICINA 🏆');
-  console.log('=============================================================');
-  console.log(` • Servidor local (esta PC):     http://localhost:${PORT}`);
-  console.log(` • Servidor para celulares (LAN): http://${localIP}:${PORT}`);
-  console.log(' • Memoria persistente guardada en data/mundial_state.json');
-  console.log(' • Sincronización en tiempo real por WebSockets activa');
-  console.log('=============================================================\n');
-});
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log('\n=============================================================');
+    console.log('   🏆 MUNDIAL DE ALFAJORES (32) - SERVIDOR DE OFICINA 🏆');
+    console.log('=============================================================');
+    console.log(` • Servidor local (esta PC):     http://localhost:${PORT}`);
+    console.log(` • Servidor para celulares (LAN): http://${localIP}:${PORT}`);
+    console.log(' • Memoria persistente guardada en data/mundial_state.json');
+    console.log(' • Sincronización en tiempo real por WebSockets activa');
+    console.log('=============================================================\n');
+  });
+}
+
+module.exports = app;
