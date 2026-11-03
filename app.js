@@ -118,52 +118,93 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 2800);
 }
 
-// Resilient Cloud & Server Synchronization (HTTP Polling + WebSockets)
+// Direct Cloud Database Synchronization (Upstash Redis)
+const UPSTASH_URL = 'https://golden-cub-247635.upstash.io';
+const UPSTASH_TOKEN = 'gQAAAAAAA8dTAQIgcDIxNDQ5MzJiMGU2N2I0ZjhjYjFmYTU0ZDllODZkNTYyNQ';
+const UPSTASH_KEY = 'mundial_state';
+
 let lastStateFingerprint = '';
 let fetchFailuresCount = 0;
+let isSavingCloud = false;
+let pendingSaveCloud = false;
 
 async function syncWithServer() {
-  const isHttp = window.location.protocol.startsWith('http');
-  if (!isHttp) return;
-
   try {
-    const res = await fetch('/api/state', { cache: 'no-store' });
+    const res = await fetch(`${UPSTASH_URL}/get/${UPSTASH_KEY}`, {
+      headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+      cache: 'no-store'
+    });
     if (res.ok) {
       const data = await res.json();
-      fetchFailuresCount = 0;
-      isServerConnected = true;
-      updateConnectionBadge(true);
-      if (data && data.state) {
-        handleIncomingState(data.state, data.network, data.connectedCount);
+      if (data && data.result) {
+        const state = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+        fetchFailuresCount = 0;
+        isServerConnected = true;
+        updateConnectionBadge(true);
+        handleIncomingState(state);
       }
     } else {
       fetchFailuresCount++;
-      if (fetchFailuresCount >= 3 && !socket) {
-        isServerConnected = false;
-        updateConnectionBadge(false);
-      }
+      if (fetchFailuresCount >= 3) updateConnectionBadge(false);
     }
   } catch (err) {
     fetchFailuresCount++;
-    if (fetchFailuresCount >= 3 && !socket) {
-      isServerConnected = false;
-      updateConnectionBadge(false);
+    if (fetchFailuresCount >= 3) updateConnectionBadge(false);
+  }
+}
+
+async function persistStateToCloud() {
+  const payload = {
+    size: tournamentSize,
+    alfajores: ALFAJORES_DATA,
+    bracketState: bracketState,
+    activeMatch: activeMatch,
+    votes: votes,
+    updatedAt: new Date().toISOString()
+  };
+
+  saveToLocalStorage();
+
+  if (isSavingCloud) {
+    pendingSaveCloud = true;
+    return;
+  }
+  isSavingCloud = true;
+
+  try {
+    await fetch(`${UPSTASH_URL}/set/${UPSTASH_KEY}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+    lastStateFingerprint = JSON.stringify({
+      size: payload.size,
+      bracket: payload.bracketState,
+      match: payload.activeMatch,
+      votes: payload.votes,
+      alfCount: payload.alfajores ? payload.alfajores.length : 0,
+      updatedAt: payload.updatedAt
+    });
+    updateConnectionBadge(true);
+  } catch (err) {
+    console.error('Error saving to cloud:', err);
+  } finally {
+    isSavingCloud = false;
+    if (pendingSaveCloud) {
+      pendingSaveCloud = false;
+      persistStateToCloud();
     }
   }
 }
 
 function initWebSocket() {
-  const isHttp = window.location.protocol.startsWith('http');
-  if (!isHttp) {
-    updateConnectionBadge(false);
-    loadFromLocalStorage();
-    return;
-  }
-
-  // Initial cloud sync
+  // Immediately sync from cloud on page start
   syncWithServer();
 
-  // Background polling every 2.5s for real-time multi-device sync
+  // Poll cloud database every 2.5s for real-time multi-device sync
   setInterval(syncWithServer, 2500);
 
   // Sync on tab focus or visibility return
@@ -172,55 +213,33 @@ function initWebSocket() {
   });
   window.addEventListener('focus', syncWithServer);
 
-  // Optional WebSocket connection (for local dev zero-latency push)
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}`;
-
-  try {
-    socket = new WebSocket(wsUrl);
-    socket.onopen = () => {
-      isServerConnected = true;
-      updateConnectionBadge(true, true);
-    };
-
-    socket.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'INIT_STATE' || msg.type === 'STATE_UPDATE') {
-          handleIncomingState(msg.state, msg.network, msg.connectedCount);
-        }
-      } catch (e) {
-        console.error('WebSocket parse error', e);
-      }
-    };
-
-    socket.onclose = () => {
-      socket = null;
-      // Do not mark offline if HTTP cloud sync is still working!
-      if (fetchFailuresCount < 3) {
-        isServerConnected = true;
-        updateConnectionBadge(true, false);
-      }
-    };
-
-    socket.onerror = () => {
-      socket = null;
-      if (fetchFailuresCount < 3) {
-        isServerConnected = true;
-        updateConnectionBadge(true, false);
-      }
-    };
-  } catch (err) {
-    socket = null;
+  // Optional local WebSocket
+  if (!window.location.host.includes('vercel.app')) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}`;
+    try {
+      socket = new WebSocket(wsUrl);
+      socket.onopen = () => { isServerConnected = true; updateConnectionBadge(true); };
+      socket.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'INIT_STATE' || msg.type === 'STATE_UPDATE') {
+            handleIncomingState(msg.state, msg.network, msg.connectedCount);
+          }
+        } catch (e) {}
+      };
+      socket.onclose = () => { socket = null; };
+      socket.onerror = () => { socket = null; };
+    } catch (err) { socket = null; }
   }
 }
 
-function updateConnectionBadge(connected, isWs = false) {
+function updateConnectionBadge(connected) {
   const pill = document.getElementById('connection-pill');
   if (!pill) return;
   if (connected) {
     pill.className = 'connection-pill live';
-    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (Sincronizado)</span>`;
+    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (Nube Sincronizada)</span>`;
   } else {
     pill.className = 'connection-pill';
     pill.innerHTML = `<span>🟡</span> <span>MODO LOCAL</span>`;
@@ -232,7 +251,6 @@ function handleIncomingState(state, net, count) {
   if (net) networkInfo = net;
 
   if (state) {
-    // Fingerprint state to prevent jitter or unneeded DOM re-renders
     const fingerprint = JSON.stringify({
       size: state.size,
       bracket: state.bracketState,
@@ -243,7 +261,7 @@ function handleIncomingState(state, net, count) {
     });
 
     if (fingerprint === lastStateFingerprint) {
-      return; // Already up to date!
+      return;
     }
     lastStateFingerprint = fingerprint;
 
@@ -268,18 +286,17 @@ function handleIncomingState(state, net, count) {
 }
 
 function sendServerAction(url, payload) {
-  fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data && data.state) {
-      handleIncomingState(data.state);
-    }
-  })
-  .catch(() => {});
+  // Instant direct persistence to Upstash cloud database!
+  persistStateToCloud();
+
+  // Also notify local server if running locally
+  if (!window.location.host.includes('vercel.app')) {
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  }
 }
 
 function saveToLocalStorage() {
