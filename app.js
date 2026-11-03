@@ -389,17 +389,17 @@ function renderActiveDuelBanner() {
 
       <div class="duel-combatants-row">
         <!-- Contender A -->
-        <div class="duel-card ${isVotedA ? 'is-voted' : ''}">
-          <div class="duel-code-circle">${alfA ? escapeHtml(alfA.code || alfA.name.slice(0, 3)) : '?'}</div>
+        <div class="duel-card ${isVotedA ? 'is-voted' : ''}" style="${isVotedA ? 'border-color: #2563eb; background: #eff6ff;' : ''}">
+          <div class="duel-code-circle" style="background: #2563eb; color: #fff;">${alfA ? escapeHtml(alfA.code || alfA.name.slice(0, 3)) : '?'}</div>
           <div class="duel-info">
             <div class="duel-name">${alfA ? escapeHtml(alfA.name) : 'Esperando rival...'}</div>
             ${alfA ? `<span class="duel-badge">${escapeHtml(alfA.badge || 'Alfajor')}</span>` : ''}
-            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 5px;">
-              ${votesA} votos (${pctA}%)
+            <div style="font-size: 13px; font-weight: 800; color: #2563eb; margin: 4px 0;">
+              ${votesA} ${votesA === 1 ? 'voto' : 'votos'} (${pctA}%)
             </div>
             ${alfA ? `
               <button class="btn-duel-vote ${isVotedA ? 'voted' : ''}" onclick="submitVote('${matchKey}', '${slotA}')">
-                ${isVotedA ? '✓ Tu voto' : '🗳️ Votar'}
+                ${isVotedA ? '✓ Tu voto' : '🗳️ Votar este'}
               </button>
             ` : ''}
           </div>
@@ -414,21 +414,32 @@ function renderActiveDuelBanner() {
         </div>
 
         <!-- Contender B -->
-        <div class="duel-card ${isVotedB ? 'is-voted' : ''}">
-          <div class="duel-code-circle">${alfB ? escapeHtml(alfB.code || alfB.name.slice(0, 3)) : '?'}</div>
+        <div class="duel-card ${isVotedB ? 'is-voted' : ''}" style="${isVotedB ? 'border-color: #dc2626; background: #fef2f2;' : ''}">
+          <div class="duel-code-circle" style="background: #dc2626; color: #fff;">${alfB ? escapeHtml(alfB.code || alfB.name.slice(0, 3)) : '?'}</div>
           <div class="duel-info">
             <div class="duel-name">${alfB ? escapeHtml(alfB.name) : 'Esperando rival...'}</div>
             ${alfB ? `<span class="duel-badge">${escapeHtml(alfB.badge || 'Alfajor')}</span>` : ''}
-            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 5px;">
-              ${votesB} votos (${pctB}%)
+            <div style="font-size: 13px; font-weight: 800; color: #dc2626; margin: 4px 0;">
+              ${votesB} ${votesB === 1 ? 'voto' : 'votos'} (${pctB}%)
             </div>
             ${alfB ? `
               <button class="btn-duel-vote ${isVotedB ? 'voted' : ''}" onclick="submitVote('${matchKey}', '${slotB}')">
-                ${isVotedB ? '✓ Tu voto' : '🗳️ Votar'}
+                ${isVotedB ? '✓ Tu voto' : '🗳️ Votar este'}
               </button>
             ` : ''}
           </div>
         </div>
+      </div>
+
+      <!-- Live Dual Comparison Bar -->
+      <div class="duel-vote-bar-wrap">
+        <div class="duel-bar-fill-a" style="width: ${pctA}%;"></div>
+        <div class="duel-bar-fill-b" style="width: ${pctB}%;"></div>
+      </div>
+      <div class="duel-vote-bar-labels">
+        <span style="color: #2563eb; font-weight: 800;">${pctA}%</span>
+        <span style="color: #64748b; font-size: 11px; font-weight: 600;">🔥 ${totalVotes} ${totalVotes === 1 ? 'voto total en vivo' : 'votos totales en vivo'}</span>
+        <span style="color: #dc2626; font-weight: 800;">${pctB}%</span>
       </div>
     </div>
   `;
@@ -452,7 +463,8 @@ window.closeActiveDuel = function () {
   highlightActiveMatchInBracket();
 };
 
-window.submitVote = function (matchKey, slotChosen) {
+window.submitVote = async function (matchKey, slotChosen) {
+  // 1. Optimistic instant visual update for zero latency
   if (!votes[matchKey]) votes[matchKey] = {};
   const matchVotes = votes[matchKey];
 
@@ -465,10 +477,30 @@ window.submitVote = function (matchKey, slotChosen) {
   if (!matchVotes[slotChosen]) matchVotes[slotChosen] = [];
   matchVotes[slotChosen].push(myVoterId);
 
-  saveToLocalStorage();
-  sendServerAction('/api/vote', { matchKey, slotChosen, voterId: myVoterId });
   renderActiveDuelBanner();
   showToast('🗳️ ¡Voto registrado!');
+
+  // 2. Fetch latest votes from cloud database to merge and prevent overwriting other users
+  try {
+    const fresh = await fetchCloudState();
+    if (fresh && fresh.votes) {
+      votes = fresh.votes;
+    }
+  } catch (err) {}
+
+  // 3. Re-apply voter to fresh dictionary
+  if (!votes[matchKey]) votes[matchKey] = {};
+  const freshVotes = votes[matchKey];
+  Object.keys(freshVotes).forEach(slot => {
+    if (Array.isArray(freshVotes[slot])) {
+      freshVotes[slot] = freshVotes[slot].filter(id => id !== myVoterId);
+    }
+  });
+  if (!freshVotes[slotChosen]) freshVotes[slotChosen] = [];
+  freshVotes[slotChosen].push(myVoterId);
+
+  renderActiveDuelBanner();
+  await persistStateToCloud();
 };
 
 window.finishActiveMatchPrompt = function () {
