@@ -16,6 +16,7 @@ const STATE_FILE = path.join(DATA_DIR, 'mundial_state.json');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Root route so Vercel / Serverless always serves index.html without "Cannot GET /"
 app.get('/', (req, res) => {
