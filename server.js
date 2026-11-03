@@ -14,11 +14,18 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'mundial_state.json');
 
+// Persistent Cloud Database (Upstash Redis / Vercel KV)
+// If Vercel KV is connected, it uses process.env.KV_REST_API_URL.
+// Otherwise, it uses our pre-provisioned persistent Upstash Redis database.
+const UPSTASH_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || 'https://golden-cub-247635.upstash.io';
+const UPSTASH_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || 'gQAAAAAAA8dTAQIgcDIxNDQ5MzJiMGU2N2I0ZjhjYjFmYTU0ZDllODZkNTYyNQ';
+const REDIS_KEY = 'mundial_state';
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// Root route so Vercel / Serverless always serves index.html without "Cannot GET /"
+// Ensure root and assets always resolve cleanly on Vercel serverless
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -30,14 +37,6 @@ app.get('/styles.css', (req, res) => {
 app.get('/app.js', (req, res) => {
   res.type('application/javascript').sendFile(path.join(__dirname, 'app.js'));
 });
-
-try {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-} catch (e) {
-  // Read-only filesystem in serverless environments
-}
 
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
@@ -63,7 +62,7 @@ QRCode.toDataURL(localUrl, { margin: 2, scale: 7, color: { dark: '#000000', ligh
   .then(url => { qrCodeDataUrl = url; })
   .catch(err => console.error('Error generating QR code:', err));
 
-// 64 Argentine Alfajores Catalog (Sin imágenes)
+// 64 Argentine Alfajores Catalog
 const DEFAULT_ALFAJORES_64 = [
   { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "kiosco", badge: "Blanco", code: "TB" },
   { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "kiosco", badge: "Oreo", code: "MO" },
@@ -131,8 +130,18 @@ const DEFAULT_ALFAJORES_64 = [
   { id: "guolis", name: "GUOLIS CORAZÓN DDL", desc: "Mar del Plata: centro fluido de dulce de leche", cat: "costa", badge: "Guolis", code: "GUO" }
 ];
 
-// Progression for 64 tournament (starting at 32avos)
-function getNextSlotId(slotId) {
+function getFreshDefaultState() {
+  return {
+    size: 64,
+    alfajores: [...DEFAULT_ALFAJORES_64],
+    bracketState: {},
+    activeMatch: null,
+    votes: {},
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function getNextSlotId(slotId, size = 64) {
   if (slotId === 'FINAL_L' || slotId === 'FINAL_R') return 'CHAMPION';
 
   const parts = slotId.split('_'); // ['L', 'R0', 'M0', 'A']
@@ -142,8 +151,9 @@ function getNextSlotId(slotId) {
   const roundIdx = parseInt(parts[1].replace('R', ''), 10);
   const matchIdx = parseInt(parts[2].replace('M', ''), 10);
 
-  // In 64: R0 (32avos), R1 (16avos), R2 (Octavos), R3 (Cuartos), R4 (Semis)
-  if (roundIdx === 4) {
+  // In 64: maxRound is 4 (Semis). In 32: maxRound is 3 (Semis).
+  const maxRound = (size === 32) ? 3 : 4;
+  if (roundIdx === maxRound) {
     return side === 'L' ? 'FINAL_L' : 'FINAL_R';
   }
 
@@ -152,65 +162,126 @@ function getNextSlotId(slotId) {
   return `${side}_R${roundIdx + 1}_M${nextMatch}_${nextLetter}`;
 }
 
-function loadState() {
-  if (fs.existsSync(STATE_FILE)) {
-    try {
+// Local Fallback Helpers
+function loadLocalState() {
+  try {
+    if (fs.existsSync(STATE_FILE)) {
       const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-      
       let alfajores = [...DEFAULT_ALFAJORES_64];
       if (Array.isArray(data.alfajores) && data.alfajores.length >= 32) {
         const customOnes = data.alfajores.filter(a => a.id.startsWith('custom-'));
         alfajores = [...DEFAULT_ALFAJORES_64, ...customOnes];
       }
-
       return {
-        size: 64,
+        size: data.size || 64,
         alfajores,
         bracketState: data.bracketState || {},
         activeMatch: data.activeMatch || null,
         votes: data.votes || {},
-        updatedAt: new Date().toISOString()
+        updatedAt: data.updatedAt || new Date().toISOString()
       };
-    } catch (e) {
-      console.error('Error reading state file, starting fresh', e);
+    }
+  } catch (e) {
+    console.error('Error reading local state file:', e.message);
+  }
+  return getFreshDefaultState();
+}
+
+function saveLocalState(state) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  } catch (e) {
+    // Read-only filesystem in serverless environments is normal
+  }
+}
+
+// Cloud Persistence Layer (Upstash Redis)
+async function fetchCloudState() {
+  if (UPSTASH_URL && UPSTASH_TOKEN) {
+    try {
+      const res = await fetch(`${UPSTASH_URL}/get/${REDIS_KEY}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` },
+        cache: 'no-store'
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.result) {
+          const parsed = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+          if (parsed && typeof parsed === 'object') {
+            if (!parsed.alfajores || parsed.alfajores.length < 32) {
+              parsed.alfajores = [...DEFAULT_ALFAJORES_64];
+            }
+            return parsed;
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Cloud storage read error:', err.message);
     }
   }
+  return loadLocalState();
+}
 
-  // Fresh initial 64 state
-  const state = {
-    size: 64,
-    alfajores: [...DEFAULT_ALFAJORES_64],
-    bracketState: {},
-    activeMatch: null,
-    votes: {},
-    updatedAt: new Date().toISOString()
-  };
-  saveState(state);
+async function persistCloudState(state) {
+  state.updatedAt = new Date().toISOString();
+  if (UPSTASH_URL && UPSTASH_TOKEN) {
+    try {
+      await fetch(`${UPSTASH_URL}/set/${REDIS_KEY}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${UPSTASH_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(state)
+      });
+    } catch (err) {
+      console.error('Cloud storage write error:', err.message);
+    }
+  }
+  saveLocalState(state);
   return state;
 }
 
-let tournamentState = loadState();
+// Memory cache with 1-second TTL to keep requests snappy
+let cachedState = null;
+let lastCacheFetch = 0;
+const CACHE_TTL_MS = 1200;
 
-function saveState(state = tournamentState) {
-  try {
-    state.updatedAt = new Date().toISOString();
-    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error saving tournament state:', err);
+async function getSharedState(forceFresh = false) {
+  const now = Date.now();
+  if (!forceFresh && cachedState && (now - lastCacheFetch < CACHE_TTL_MS)) {
+    return cachedState;
   }
+  const state = await fetchCloudState();
+  cachedState = state;
+  lastCacheFetch = now;
+  return state;
 }
 
-function broadcastState() {
+async function mutateSharedState(mutator) {
+  // Always fetch fresh state before mutating to avoid stale overwrites
+  let state = await fetchCloudState();
+  if (!state || !Array.isArray(state.alfajores)) {
+    state = getFreshDefaultState();
+  }
+  const result = await mutator(state);
+  await persistCloudState(state);
+  cachedState = state;
+  lastCacheFetch = Date.now();
+  broadcastState(state);
+  return { state, result };
+}
+
+function broadcastState(state = cachedState) {
+  if (!state) return;
   const payload = JSON.stringify({
     type: 'STATE_UPDATE',
-    state: tournamentState,
+    state,
     connectedCount: wss.clients.size,
-    network: {
-      ip: localIP,
-      port: PORT,
-      url: localUrl,
-      qr: qrCodeDataUrl
-    }
+    network: { ip: localIP, port: PORT, url: localUrl, qr: qrCodeDataUrl }
   });
 
   wss.clients.forEach(client => {
@@ -220,217 +291,241 @@ function broadcastState() {
   });
 }
 
-wss.on('connection', ws => {
+wss.on('connection', async ws => {
+  const state = await getSharedState();
   ws.send(JSON.stringify({
     type: 'INIT_STATE',
-    state: tournamentState,
+    state,
     connectedCount: wss.clients.size,
-    network: {
-      ip: localIP,
-      port: PORT,
-      url: localUrl,
-      qr: qrCodeDataUrl
-    }
+    network: { ip: localIP, port: PORT, url: localUrl, qr: qrCodeDataUrl }
   }));
-
-  broadcastState();
-
+  broadcastState(state);
   ws.on('close', () => broadcastState());
 });
 
-// REST API Endpoints
+// ==========================================
+// REST API ENDPOINTS (Synchronous & Cloud)
+// ==========================================
 
-app.get('/api/state', (req, res) => {
-  res.json({
-    state: tournamentState,
-    connectedCount: wss.clients.size,
-    network: {
-      ip: localIP,
-      port: PORT,
-      url: localUrl,
-      qr: qrCodeDataUrl
+// Get Current Shared State
+app.get('/api/state', async (req, res) => {
+  try {
+    const state = await getSharedState();
+    res.json({
+      state,
+      connectedCount: wss.clients.size,
+      network: { ip: localIP, port: PORT, url: localUrl, qr: qrCodeDataUrl }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 1. Toggle Tournament Size (32 vs 64)
+app.post('/api/tournament/size', async (req, res) => {
+  const { size } = req.body;
+  if (size !== 32 && size !== 64) return res.status(400).json({ error: 'Size must be 32 or 64' });
+
+  const { state } = await mutateSharedState(s => {
+    s.size = size;
+  });
+  res.json({ success: true, state });
+});
+
+// 2. Select Active Match for Today's Duel
+app.post('/api/active-match', async (req, res) => {
+  const { matchKey, slotA, slotB, label } = req.body;
+  const { state } = await mutateSharedState(s => {
+    if (!matchKey) {
+      s.activeMatch = null;
+    } else {
+      s.activeMatch = { matchKey, slotA, slotB, label };
+      if (!s.votes[matchKey]) {
+        s.votes[matchKey] = {};
+      }
     }
   });
+  res.json({ success: true, state, activeMatch: state.activeMatch });
 });
 
-// 1. Select Active Match for Today's Duel
-app.post('/api/active-match', (req, res) => {
-  const { matchKey, slotA, slotB, label } = req.body;
-  if (!matchKey) {
-    tournamentState.activeMatch = null;
-  } else {
-    tournamentState.activeMatch = { matchKey, slotA, slotB, label };
-    if (!tournamentState.votes[matchKey]) {
-      tournamentState.votes[matchKey] = {};
-    }
-  }
-  saveState();
-  broadcastState();
-  res.json({ success: true, activeMatch: tournamentState.activeMatch });
-});
-
-// 2. Submit a Vote for an Alfajor in the Active Match
-app.post('/api/vote', (req, res) => {
+// 3. Submit a Vote for an Alfajor in the Active Match
+app.post('/api/vote', async (req, res) => {
   const { matchKey, slotChosen, voterId } = req.body;
   if (!matchKey || !slotChosen || !voterId) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
 
-  if (!tournamentState.votes[matchKey]) {
-    tournamentState.votes[matchKey] = {};
-  }
-  const matchVotes = tournamentState.votes[matchKey];
+  const { state } = await mutateSharedState(s => {
+    if (!s.votes[matchKey]) s.votes[matchKey] = {};
+    const matchVotes = s.votes[matchKey];
 
-  // Remove previous vote in this match from this voter
-  Object.keys(matchVotes).forEach(slot => {
-    if (Array.isArray(matchVotes[slot])) {
-      matchVotes[slot] = matchVotes[slot].filter(id => id !== voterId);
-    }
+    // Remove previous vote in this match from this voter
+    Object.keys(matchVotes).forEach(slot => {
+      if (Array.isArray(matchVotes[slot])) {
+        matchVotes[slot] = matchVotes[slot].filter(id => id !== voterId);
+      }
+    });
+
+    if (!matchVotes[slotChosen]) matchVotes[slotChosen] = [];
+    matchVotes[slotChosen].push(voterId);
   });
 
-  if (!matchVotes[slotChosen]) matchVotes[slotChosen] = [];
-  matchVotes[slotChosen].push(voterId);
-
-  saveState();
-  broadcastState();
-  res.json({ success: true, votes: tournamentState.votes[matchKey] });
+  res.json({ success: true, state, votes: state.votes[matchKey] });
 });
 
-// 3. Finish Match and Automatically Advance Winner
-app.post('/api/finish-match', (req, res) => {
+// 4. Finish Match and Automatically Advance Winner
+app.post('/api/finish-match', async (req, res) => {
   const { matchKey, winnerSlot } = req.body;
-  const current = tournamentState.bracketState[winnerSlot];
 
-  if (!current) {
+  let currentWinner = null;
+  let targetSlot = null;
+
+  const { state } = await mutateSharedState(s => {
+    currentWinner = s.bracketState[winnerSlot];
+    if (currentWinner) {
+      targetSlot = getNextSlotId(winnerSlot, s.size);
+      if (targetSlot) {
+        s.bracketState[targetSlot] = currentWinner;
+      }
+    }
+    s.activeMatch = null;
+  });
+
+  if (!currentWinner) {
     return res.status(400).json({ error: 'Winner slot has no alfajor' });
   }
 
-  const nextSlot = getNextSlotId(winnerSlot);
-  if (nextSlot) {
-    tournamentState.bracketState[nextSlot] = current;
-  }
-
-  // Clear active match
-  tournamentState.activeMatch = null;
-
-  saveState();
-  broadcastState();
-  res.json({ success: true, winner: current, nextSlot, bracketState: tournamentState.bracketState });
+  res.json({ success: true, state, winner: currentWinner, nextSlot: targetSlot, bracketState: state.bracketState });
 });
 
-// 4. Update Single Slot
-app.post('/api/bracket/slot', (req, res) => {
+// 5. Update Single Slot
+app.post('/api/bracket/slot', async (req, res) => {
   const { slotId, alfajor } = req.body;
   if (!slotId) return res.status(400).json({ error: 'slotId required' });
 
-  if (alfajor) {
-    tournamentState.bracketState[slotId] = alfajor;
-  } else {
-    delete tournamentState.bracketState[slotId];
-  }
-
-  saveState();
-  broadcastState();
-  res.json({ success: true, bracketState: tournamentState.bracketState });
-});
-
-// 5. Advance 1 Slot Directly with 1 click
-app.post('/api/bracket/advance', (req, res) => {
-  const { slotId } = req.body;
-  const current = tournamentState.bracketState[slotId];
-  if (!current) return res.status(400).json({ error: 'No alfajor in source slot' });
-
-  const nextSlot = getNextSlotId(slotId);
-  if (!nextSlot) return res.status(400).json({ error: 'No next slot' });
-
-  tournamentState.bracketState[nextSlot] = current;
-
-  saveState();
-  broadcastState();
-  res.json({ success: true, nextSlot, alfajor: current });
-});
-
-// 6. Fill Initial 64 Slots with Catalog
-app.post('/api/bracket/fill-all', (req, res) => {
-  const initialSlots = [];
-  for (let m = 0; m < 16; m++) {
-    initialSlots.push(`L_R0_M${m}_A`);
-    initialSlots.push(`L_R0_M${m}_B`);
-  }
-  for (let m = 0; m < 16; m++) {
-    initialSlots.push(`R_R0_M${m}_A`);
-    initialSlots.push(`R_R0_M${m}_B`);
-  }
-
-  const usedIds = new Set(Object.values(tournamentState.bracketState).map(a => a?.id).filter(Boolean));
-  const available = tournamentState.alfajores.filter(a => !usedIds.has(a.id));
-
-  let availIdx = 0;
-  initialSlots.forEach(slotId => {
-    if (!tournamentState.bracketState[slotId] && available[availIdx]) {
-      tournamentState.bracketState[slotId] = available[availIdx];
-      availIdx++;
+  const { state } = await mutateSharedState(s => {
+    if (alfajor) {
+      s.bracketState[slotId] = alfajor;
+    } else {
+      delete s.bracketState[slotId];
     }
   });
 
-  saveState();
-  broadcastState();
-  res.json({ success: true, bracketState: tournamentState.bracketState });
+  res.json({ success: true, state, bracketState: state.bracketState });
 });
 
-// 7. Clear Bracket
-app.post('/api/bracket/reset', (req, res) => {
-  tournamentState.bracketState = {};
-  tournamentState.activeMatch = null;
-  tournamentState.votes = {};
-  saveState();
-  broadcastState();
-  res.json({ success: true });
+// 6. Advance 1 Slot Directly with 1 click
+app.post('/api/bracket/advance', async (req, res) => {
+  const { slotId } = req.body;
+
+  let movedAlfajor = null;
+  let targetSlot = null;
+
+  const { state } = await mutateSharedState(s => {
+    movedAlfajor = s.bracketState[slotId];
+    if (movedAlfajor) {
+      targetSlot = getNextSlotId(slotId, s.size);
+      if (targetSlot) {
+        s.bracketState[targetSlot] = movedAlfajor;
+      }
+    }
+  });
+
+  if (!movedAlfajor) return res.status(400).json({ error: 'No alfajor in source slot' });
+  if (!targetSlot) return res.status(400).json({ error: 'No next slot available' });
+
+  res.json({ success: true, state, nextSlot: targetSlot, alfajor: movedAlfajor });
 });
 
-// 8. Add custom alfajor
-app.post('/api/alfajor/add', (req, res) => {
+// 7. Fill Initial Slots with Catalog
+app.post('/api/bracket/fill-all', async (req, res) => {
+  const reqSize = req.body.size;
+
+  const { state } = await mutateSharedState(s => {
+    const activeSize = (reqSize === 32 || reqSize === 64) ? reqSize : (s.size || 64);
+    s.size = activeSize;
+
+    const matchesPerSide = (activeSize === 32) ? 8 : 16;
+    const initialSlots = [];
+
+    for (let m = 0; m < matchesPerSide; m++) {
+      initialSlots.push(`L_R0_M${m}_A`);
+      initialSlots.push(`L_R0_M${m}_B`);
+    }
+    for (let m = 0; m < matchesPerSide; m++) {
+      initialSlots.push(`R_R0_M${m}_A`);
+      initialSlots.push(`R_R0_M${m}_B`);
+    }
+
+    const usedIds = new Set(Object.values(s.bracketState).map(a => a?.id).filter(Boolean));
+    const available = s.alfajores.filter(a => !usedIds.has(a.id));
+
+    let availIdx = 0;
+    initialSlots.forEach(slotId => {
+      if (!s.bracketState[slotId] && available[availIdx]) {
+        s.bracketState[slotId] = available[availIdx];
+        availIdx++;
+      }
+    });
+  });
+
+  res.json({ success: true, state, bracketState: state.bracketState });
+});
+
+// 8. Clear Bracket
+app.post('/api/bracket/reset', async (req, res) => {
+  const { state } = await mutateSharedState(s => {
+    s.bracketState = {};
+    s.activeMatch = null;
+    s.votes = {};
+  });
+  res.json({ success: true, state });
+});
+
+// 9. Add custom alfajor
+app.post('/api/alfajor/add', async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
 
-  const newAlf = {
-    id: 'custom-' + Date.now(),
-    name: name.toUpperCase().trim(),
-    desc: 'Alfajor personalizado de la oficina',
-    cat: 'pedidos',
-    badge: 'Custom',
-    code: name.substring(0, 3).toUpperCase()
-  };
+  let newAlf = null;
+  const { state } = await mutateSharedState(s => {
+    newAlf = {
+      id: 'custom-' + Date.now(),
+      name: name.toUpperCase().trim(),
+      desc: 'Alfajor personalizado de la oficina',
+      cat: 'pedidos',
+      badge: 'Custom',
+      code: name.substring(0, 3).toUpperCase()
+    };
+    s.alfajores.unshift(newAlf);
+  });
 
-  tournamentState.alfajores.unshift(newAlf);
-  saveState();
-  broadcastState();
-  res.json({ success: true, alfajor: newAlf });
+  res.json({ success: true, state, alfajor: newAlf });
 });
 
-// 9. Delete custom alfajor
-app.post('/api/alfajor/delete', (req, res) => {
+// 10. Delete custom alfajor
+app.post('/api/alfajor/delete', async (req, res) => {
   const { id } = req.body;
-  tournamentState.alfajores = tournamentState.alfajores.filter(a => a.id !== id);
-  Object.keys(tournamentState.bracketState).forEach(slotId => {
-    if (tournamentState.bracketState[slotId]?.id === id) {
-      delete tournamentState.bracketState[slotId];
-    }
+  const { state } = await mutateSharedState(s => {
+    s.alfajores = s.alfajores.filter(a => a.id !== id);
+    Object.keys(s.bracketState).forEach(slotId => {
+      if (s.bracketState[slotId]?.id === id) {
+        delete s.bracketState[slotId];
+      }
+    });
   });
-  saveState();
-  broadcastState();
-  res.json({ success: true });
+  res.json({ success: true, state });
 });
 
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
     console.log('\n=============================================================');
-    console.log('   🏆 MUNDIAL DE ALFAJORES (64 - 32AVOS) - SERVIDOR 🏆');
+    console.log('   🏆 MUNDIAL DE ALFAJORES - SERVIDOR CON NUBE ACTIVA 🏆');
     console.log('=============================================================');
     console.log(` • Servidor local (esta PC):     http://localhost:${PORT}`);
     console.log(` • Servidor para celulares (LAN): http://${localIP}:${PORT}`);
-    console.log(' • Memoria persistente guardada en data/mundial_state.json');
-    console.log(' • Sincronización en tiempo real por WebSockets activa');
+    console.log(' • Base de datos en la nube:      Upstash Redis / Vercel KV');
+    console.log(' • Sincronización en tiempo real activa para todos los usuarios');
     console.log('=============================================================\n');
   });
 }

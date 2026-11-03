@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mundial de Alfajores - Árbol de Torneo Oficial</title>
-  <meta name="description" content="Mundial de Alfajores con árbol de torneo oficial de 32avos o 16avos de final, duelo en vivo y estadísticas.">
+  <title>Mundial de Alfajores - Ãrbol de Torneo Oficial</title>
+  <meta name="description" content="Mundial de Alfajores con Ã¡rbol de torneo oficial de 32avos o 16avos de final, duelo en vivo y estadÃ­sticas.">
   <style>
 :root {
   --bg: #f8fafc;
@@ -1008,38 +1008,38 @@ main.bracket-viewport {
   <header>
     <div class="header-left">
       <div class="header-titles">
-        <h1>🏆 MUNDIAL DE ALFAJORES <span class="badge-size" id="header-size-badge">64 (32avos)</span></h1>
+        <h1>ðŸ† MUNDIAL DE ALFAJORES <span class="badge-size" id="header-size-badge">64 (32avos)</span></h1>
       </div>
-      <div class="connection-pill" id="connection-pill" title="Estado de sincronización">
-        <span>🟡</span> <span>CONECTANDO...</span>
+      <div class="connection-pill" id="connection-pill" title="Estado de sincronizaciÃ³n">
+        <span>ðŸŸ¡</span> <span>CONECTANDO...</span>
       </div>
     </div>
 
     <div class="header-actions">
-      <!-- Selector de tamaño: 32 vs 64 -->
+      <!-- Selector de tamaÃ±o: 32 vs 64 -->
       <div class="size-switcher" title="Elegir cantidad de participantes">
         <button class="btn-size-toggle" id="btn-size-32">32 Alfajores</button>
         <button class="btn-size-toggle active" id="btn-size-64">64 (32avos)</button>
       </div>
 
       <!-- QR Button for Coworkers Mobile Devices -->
-      <button class="btn-qr" id="btn-open-qr" title="Abrir código QR para conectar celulares">
-        📱 Conectar Celulares
+      <button class="btn-qr" id="btn-open-qr" title="Abrir cÃ³digo QR para conectar celulares">
+        ðŸ“± Conectar Celulares
       </button>
 
       <!-- Fill Remaining Slots Button -->
-      <button class="btn" id="btn-fill-all" title="Llenar casilleros vacíos con los alfajores">
-        🎲 Completar Llave
+      <button class="btn" id="btn-fill-all" title="Llenar casilleros vacÃ­os con los alfajores">
+        ðŸŽ² Completar Llave
       </button>
 
       <!-- Reset Bracket Button -->
       <button class="btn" id="btn-clear" title="Vaciar toda la llave">
-        🗑️ Vaciar
+        ðŸ—‘ï¸ Vaciar
       </button>
 
       <!-- Print Button -->
       <button class="btn" id="btn-print" title="Imprimir la llave">
-        🖨️ Imprimir
+        ðŸ–¨ï¸ Imprimir
       </button>
     </div>
   </header>
@@ -1062,7 +1062,7 @@ main.bracket-viewport {
 
         <!-- Search Input with Lupa -->
         <div class="search-box-wrap">
-          <span class="search-lupa">🔍</span>
+          <span class="search-lupa">ðŸ”</span>
           <input type="text" id="search-input" class="search-box" placeholder="Buscar alfajor..." />
         </div>
       </div>
@@ -1088,7 +1088,7 @@ main.bracket-viewport {
       <!-- Floating Zoom & Fit Controls -->
       <div class="zoom-floating-bar">
         <button class="btn" id="btn-fit-screen" style="padding: 3px 8px; font-size: 11px;">
-          🔲 Ver Llave Completa
+          ðŸ”² Ver Llave Completa
         </button>
         <button class="zoom-btn" id="btn-zoom-out" title="Alejar">-</button>
         <span class="zoom-val" id="zoom-text">85%</span>
@@ -1110,20 +1110,20 @@ main.bracket-viewport {
   <!-- QR Code Modal -->
   <div class="modal-overlay" id="qr-modal">
     <div class="modal-box">
-      <button class="modal-close-btn" onclick="closeQRModal()">✕</button>
-      <h3 style="font-size: 17px; font-weight: 900; text-transform: uppercase;">📱 Conectar Celulares</h3>
+      <button class="modal-close-btn" onclick="closeQRModal()">âœ•</button>
+      <h3 style="font-size: 17px; font-weight: 900; text-transform: uppercase;">ðŸ“± Conectar Celulares</h3>
       <p style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
-        Escaneá con la cámara de tu celular conectado a la red Wi-Fi de la oficina para ver el cuadro y votar en vivo.
+        EscaneÃ¡ con la cÃ¡mara de tu celular conectado a la red Wi-Fi de la oficina para ver el cuadro y votar en vivo.
       </p>
 
       <div class="qr-image-frame">
-        <img id="qr-code-img" src="" alt="Código QR del Mundial" />
+        <img id="qr-code-img" src="" alt="CÃ³digo QR del Mundial" />
       </div>
 
       <div class="qr-url-box" id="qr-url-text">http://localhost:3000</div>
 
       <button class="btn" onclick="copyOfficeLink()" style="width: 100%; justify-content: center; padding: 8px; background: #0f172a; color: #fff;">
-        📋 Copiar Enlace para Compartir
+        ðŸ“‹ Copiar Enlace para Compartir
       </button>
     </div>
   </div>
@@ -1255,7 +1255,40 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 2800);
 }
 
-// WebSocket & State Sync
+// Resilient Cloud & Server Synchronization (HTTP Polling + WebSockets)
+let lastStateFingerprint = '';
+let fetchFailuresCount = 0;
+
+async function syncWithServer() {
+  const isHttp = window.location.protocol.startsWith('http');
+  if (!isHttp) return;
+
+  try {
+    const res = await fetch('/api/state', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      fetchFailuresCount = 0;
+      isServerConnected = true;
+      updateConnectionBadge(true);
+      if (data && data.state) {
+        handleIncomingState(data.state, data.network, data.connectedCount);
+      }
+    } else {
+      fetchFailuresCount++;
+      if (fetchFailuresCount >= 3 && !socket) {
+        isServerConnected = false;
+        updateConnectionBadge(false);
+      }
+    }
+  } catch (err) {
+    fetchFailuresCount++;
+    if (fetchFailuresCount >= 3 && !socket) {
+      isServerConnected = false;
+      updateConnectionBadge(false);
+    }
+  }
+}
+
 function initWebSocket() {
   const isHttp = window.location.protocol.startsWith('http');
   if (!isHttp) {
@@ -1264,6 +1297,19 @@ function initWebSocket() {
     return;
   }
 
+  // Initial cloud sync
+  syncWithServer();
+
+  // Background polling every 2.5s for real-time multi-device sync
+  setInterval(syncWithServer, 2500);
+
+  // Sync on tab focus or visibility return
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncWithServer();
+  });
+  window.addEventListener('focus', syncWithServer);
+
+  // Optional WebSocket connection (for local dev zero-latency push)
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}`;
 
@@ -1271,7 +1317,7 @@ function initWebSocket() {
     socket = new WebSocket(wsUrl);
     socket.onopen = () => {
       isServerConnected = true;
-      updateConnectionBadge(true);
+      updateConnectionBadge(true, true);
     };
 
     socket.onmessage = (event) => {
@@ -1286,26 +1332,32 @@ function initWebSocket() {
     };
 
     socket.onclose = () => {
-      isServerConnected = false;
-      updateConnectionBadge(false);
-      setTimeout(initWebSocket, 3000);
+      socket = null;
+      // Do not mark offline if HTTP cloud sync is still working!
+      if (fetchFailuresCount < 3) {
+        isServerConnected = true;
+        updateConnectionBadge(true, false);
+      }
     };
 
     socket.onerror = () => {
-      isServerConnected = false;
-      updateConnectionBadge(false);
+      socket = null;
+      if (fetchFailuresCount < 3) {
+        isServerConnected = true;
+        updateConnectionBadge(true, false);
+      }
     };
   } catch (err) {
-    updateConnectionBadge(false);
+    socket = null;
   }
 }
 
-function updateConnectionBadge(connected) {
+function updateConnectionBadge(connected, isWs = false) {
   const pill = document.getElementById('connection-pill');
   if (!pill) return;
   if (connected) {
     pill.className = 'connection-pill live';
-    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (${connectedCount} disp.)</span>`;
+    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (Sincronizado)</span>`;
   } else {
     pill.className = 'connection-pill';
     pill.innerHTML = `<span>🟡</span> <span>MODO LOCAL</span>`;
@@ -1317,6 +1369,22 @@ function handleIncomingState(state, net, count) {
   if (net) networkInfo = net;
 
   if (state) {
+    // Fingerprint state to prevent jitter or unneeded DOM re-renders
+    const fingerprint = JSON.stringify({
+      size: state.size,
+      bracket: state.bracketState,
+      match: state.activeMatch,
+      votes: state.votes,
+      alfCount: state.alfajores ? state.alfajores.length : 0,
+      updatedAt: state.updatedAt
+    });
+
+    if (fingerprint === lastStateFingerprint) {
+      return; // Already up to date!
+    }
+    lastStateFingerprint = fingerprint;
+
+    const previousSize = tournamentSize;
     if (state.size && (state.size === 32 || state.size === 64)) {
       tournamentSize = state.size;
     }
@@ -1329,7 +1397,9 @@ function handleIncomingState(state, net, count) {
 
     saveToLocalStorage();
     updateSizeButtonsUI();
-    buildBracket(tournamentSize);
+    if (previousSize !== tournamentSize || !document.getElementById('tree-svg-connectors')) {
+      buildBracket(tournamentSize);
+    }
     refreshAllViews();
   }
 }
@@ -1339,7 +1409,14 @@ function sendServerAction(url, payload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).catch(() => {});
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.state) {
+      handleIncomingState(data.state);
+    }
+  })
+  .catch(() => {});
 }
 
 function saveToLocalStorage() {
@@ -2080,6 +2157,7 @@ window.switchTournamentSize = function (newSize) {
   buildBracket(tournamentSize);
   refreshAllViews();
   setTimeout(fitToScreen, 150);
+  sendServerAction('/api/tournament/size', { size: newSize });
   showToast(`📐 Llave cambiada a ${tournamentSize === 64 ? '64 alfajores (32avos)' : '32 alfajores (16avos)'}`);
 };
 
@@ -2265,7 +2343,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       saveToLocalStorage();
-      sendServerAction('/api/bracket/fill-all', {});
+      sendServerAction('/api/bracket/fill-all', { size: tournamentSize });
       refreshAllViews();
       showToast(`🎲 ¡Llave completada con los ${initialSlotsList.length} alfajores!`);
     });
@@ -2328,8 +2406,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(fitToScreen, 200);
 });
 
-</script>
-<script src="app.js"></script>
+  </script>
 </body>
-
 </html>

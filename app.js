@@ -118,7 +118,40 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 2800);
 }
 
-// WebSocket & State Sync
+// Resilient Cloud & Server Synchronization (HTTP Polling + WebSockets)
+let lastStateFingerprint = '';
+let fetchFailuresCount = 0;
+
+async function syncWithServer() {
+  const isHttp = window.location.protocol.startsWith('http');
+  if (!isHttp) return;
+
+  try {
+    const res = await fetch('/api/state', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      fetchFailuresCount = 0;
+      isServerConnected = true;
+      updateConnectionBadge(true);
+      if (data && data.state) {
+        handleIncomingState(data.state, data.network, data.connectedCount);
+      }
+    } else {
+      fetchFailuresCount++;
+      if (fetchFailuresCount >= 3 && !socket) {
+        isServerConnected = false;
+        updateConnectionBadge(false);
+      }
+    }
+  } catch (err) {
+    fetchFailuresCount++;
+    if (fetchFailuresCount >= 3 && !socket) {
+      isServerConnected = false;
+      updateConnectionBadge(false);
+    }
+  }
+}
+
 function initWebSocket() {
   const isHttp = window.location.protocol.startsWith('http');
   if (!isHttp) {
@@ -127,6 +160,19 @@ function initWebSocket() {
     return;
   }
 
+  // Initial cloud sync
+  syncWithServer();
+
+  // Background polling every 2.5s for real-time multi-device sync
+  setInterval(syncWithServer, 2500);
+
+  // Sync on tab focus or visibility return
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncWithServer();
+  });
+  window.addEventListener('focus', syncWithServer);
+
+  // Optional WebSocket connection (for local dev zero-latency push)
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}`;
 
@@ -134,7 +180,7 @@ function initWebSocket() {
     socket = new WebSocket(wsUrl);
     socket.onopen = () => {
       isServerConnected = true;
-      updateConnectionBadge(true);
+      updateConnectionBadge(true, true);
     };
 
     socket.onmessage = (event) => {
@@ -149,26 +195,32 @@ function initWebSocket() {
     };
 
     socket.onclose = () => {
-      isServerConnected = false;
-      updateConnectionBadge(false);
-      setTimeout(initWebSocket, 3000);
+      socket = null;
+      // Do not mark offline if HTTP cloud sync is still working!
+      if (fetchFailuresCount < 3) {
+        isServerConnected = true;
+        updateConnectionBadge(true, false);
+      }
     };
 
     socket.onerror = () => {
-      isServerConnected = false;
-      updateConnectionBadge(false);
+      socket = null;
+      if (fetchFailuresCount < 3) {
+        isServerConnected = true;
+        updateConnectionBadge(true, false);
+      }
     };
   } catch (err) {
-    updateConnectionBadge(false);
+    socket = null;
   }
 }
 
-function updateConnectionBadge(connected) {
+function updateConnectionBadge(connected, isWs = false) {
   const pill = document.getElementById('connection-pill');
   if (!pill) return;
   if (connected) {
     pill.className = 'connection-pill live';
-    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (${connectedCount} disp.)</span>`;
+    pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (Sincronizado)</span>`;
   } else {
     pill.className = 'connection-pill';
     pill.innerHTML = `<span>🟡</span> <span>MODO LOCAL</span>`;
@@ -180,6 +232,22 @@ function handleIncomingState(state, net, count) {
   if (net) networkInfo = net;
 
   if (state) {
+    // Fingerprint state to prevent jitter or unneeded DOM re-renders
+    const fingerprint = JSON.stringify({
+      size: state.size,
+      bracket: state.bracketState,
+      match: state.activeMatch,
+      votes: state.votes,
+      alfCount: state.alfajores ? state.alfajores.length : 0,
+      updatedAt: state.updatedAt
+    });
+
+    if (fingerprint === lastStateFingerprint) {
+      return; // Already up to date!
+    }
+    lastStateFingerprint = fingerprint;
+
+    const previousSize = tournamentSize;
     if (state.size && (state.size === 32 || state.size === 64)) {
       tournamentSize = state.size;
     }
@@ -192,7 +260,9 @@ function handleIncomingState(state, net, count) {
 
     saveToLocalStorage();
     updateSizeButtonsUI();
-    buildBracket(tournamentSize);
+    if (previousSize !== tournamentSize || !document.getElementById('tree-svg-connectors')) {
+      buildBracket(tournamentSize);
+    }
     refreshAllViews();
   }
 }
@@ -202,7 +272,14 @@ function sendServerAction(url, payload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).catch(() => {});
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.state) {
+      handleIncomingState(data.state);
+    }
+  })
+  .catch(() => {});
 }
 
 function saveToLocalStorage() {
@@ -943,6 +1020,7 @@ window.switchTournamentSize = function (newSize) {
   buildBracket(tournamentSize);
   refreshAllViews();
   setTimeout(fitToScreen, 150);
+  sendServerAction('/api/tournament/size', { size: newSize });
   showToast(`📐 Llave cambiada a ${tournamentSize === 64 ? '64 alfajores (32avos)' : '32 alfajores (16avos)'}`);
 };
 
@@ -1128,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       saveToLocalStorage();
-      sendServerAction('/api/bracket/fill-all', {});
+      sendServerAction('/api/bracket/fill-all', { size: tournamentSize });
       refreshAllViews();
       showToast(`🎲 ¡Llave completada con los ${initialSlotsList.length} alfajores!`);
     });
