@@ -63,43 +63,75 @@ QRCode.toDataURL(localUrl, { margin: 2, scale: 7, color: { dark: '#000000', ligh
   .then(url => { qrCodeDataUrl = url; })
   .catch(err => console.error('Error generating QR code:', err));
 
-// 32 Argentine Alfajores with verified local packshots
-const DEFAULT_ALFAJORES_32 = [
-  { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "pedidos", badge: "Blanco", code: "TB", img: "images/terrabusi-blanco.webp" },
-  { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "pedidos", badge: "Oreo", code: "MO", img: "images/milka-oreo.webp" },
-  { id: "terrabusi-glaseado-blanco", name: "TERRABUSI GLASEADO BLANCO", desc: "El clásico escolar con baño glasé de azúcar", cat: "pedidos", badge: "Glasé", code: "TG", img: "images/terrabusi-glaseado-blanco.webp" },
-  { id: "milka-mousse-blanco", name: "MILKA MOUSSE BLANCO", desc: "Relleno de mousse y cobertura blanca", cat: "pedidos", badge: "Mousse B", code: "MMB", img: "images/milka-mousse-blanco.webp" },
-  { id: "milka-mousse-negro", name: "MILKA MOUSSE NEGRO", desc: "Relleno de mousse y chocolate con leche", cat: "pedidos", badge: "Mousse N", code: "MMN", img: "images/milka-mousse-negro.webp" },
-  { id: "block", name: "BLOCK", desc: "Cofler Block con maní y puro chocolate", cat: "pedidos", badge: "Cofler", code: "BLK", img: "images/block.webp" },
-  { id: "bonobon", name: "BONOBON", desc: "Relleno de crema de maní y oblea crujiente", cat: "pedidos", badge: "Bon o Bon", code: "BOB", img: "images/bonobon.webp" },
-  { id: "pepito", name: "PEPITO", desc: "Galleta con chispas de chocolate y dulce de leche", cat: "pedidos", badge: "Chips", code: "PEP", img: "images/pepito.webp" },
-  { id: "chocotorta", name: "CHOCOTORTA", desc: "Sabor original con galletitas Chocolinas", cat: "pedidos", badge: "Torta", code: "CHO", img: "images/chocotorta.webp" },
-  { id: "cachafaz-n", name: "CACHAFAZ N", desc: "Cachafaz Negro bañado en chocolate amargo", cat: "pedidos", badge: "Negro", code: "CN", img: "images/cachafaz-n.webp" },
-  { id: "cachafaz-b", name: "CACHAFAZ B", desc: "Cachafaz Blanco con baño suave de repostería", cat: "pedidos", badge: "Blanco", code: "CB", img: "images/cachafaz-b.webp" },
-  { id: "shot-b", name: "SHOT B", desc: "Shot Blanco con maní crocante y chocolate blanco", cat: "pedidos", badge: "Blanco", code: "SHB", img: "images/shot-b.png" },
-  { id: "gula", name: "GULA", desc: "Mega alfajor artesanal relleno extra contundente", cat: "pedidos", badge: "Gula", code: "GUL", img: "images/gula.webp" },
-  { id: "capitan-del-espacio", name: "CAPITAN DEL ESPACIO", desc: "El mito absoluto del conurbano quilmeño", cat: "pedidos", badge: "Mítico", code: "CAP", img: "images/capitan-del-espacio.webp" },
-  { id: "guaymallen", name: "GUAYMALLÉN CHOCOLATE", desc: "El rey popular y de los recreos", cat: "kiosco", badge: "Clásico", code: "GUY", img: "images/guaymallen.webp" },
-  { id: "havanna-clasico", name: "HAVANNA CLÁSICO", desc: "El ícono marplatense por excelencia", cat: "costa", badge: "Costa", code: "HAV", img: "images/havanna-clasico.webp" },
-  { id: "havanna-sal-marina", name: "HAVANNA MAR DEL PLATA", desc: "Edición 150 años con sal marina", cat: "costa", badge: "Furor", code: "HSM", img: "images/havanna-sal-marina.webp" },
-  { id: "jorgito-negro", name: "JORGITO CHOCOLATE", desc: "El gran clásico de chocolate barrial", cat: "kiosco", badge: "Clásico", code: "JOR", img: "images/jorgito-negro.webp" },
-  { id: "cachafaz-maicena", name: "CACHAFAZ MAICENA", desc: "El referente de maicena con coco", cat: "kiosco", badge: "Maicena", code: "CMA", img: "images/cachafaz-maicena.webp" },
-  { id: "fantoche-triple", name: "FANTOCHE TRIPLE", desc: "El pionero creador del alfajor triple", cat: "kiosco", badge: "Pionero", code: "FAN", img: "images/fantoche-triple.webp" },
-  { id: "rasta", name: "RASTA", desc: "Galleta crujiente y abundante dulce de leche", cat: "kiosco", badge: "Furor", code: "RAS", img: "images/rasta.webp" },
-  { id: "balcarce", name: "BALCARCE", desc: "Hojaldre, merengue y sabor serrano", cat: "costa", badge: "Tradición", code: "BAL", img: "images/balcarce.webp" },
-  { id: "fulbito", name: "FULBITO MANÍ", desc: "Pura nostalgia escolar de los 90s", cat: "kiosco", badge: "Nostalgia", code: "FUL", img: "images/fulbito.jpg" },
-  { id: "jorgelin-triple", name: "JORGELÍN TRIPLE", desc: "La versión gigante del clásico Jorgito", cat: "kiosco", badge: "Triple", code: "JGT", img: "images/jorgelin-triple.webp" },
-  { id: "tatin-simple", name: "TATÍN SIMPLE", desc: "El clásico de quiosco a precio popular", cat: "kiosco", badge: "Retro", code: "TAT", img: "images/tatin-simple.webp" },
-  { id: "grandote-triple", name: "GRANDOTE TRIPLE", desc: "Doble piso y máxima contundencia popular", cat: "kiosco", badge: "Triple", code: "GRA", img: "images/grandote-triple.webp" },
-  { id: "guaymallen-blanco", name: "GUAYMALLÉN BLANCO", desc: "El clásico de vainilla con glasé", cat: "kiosco", badge: "Blanco", code: "GUB", img: "images/guaymallen-blanco.webp" },
-  { id: "jorgito-blanco", name: "JORGITO BLANCO", desc: "Bañado en azúcar glasé suave", cat: "kiosco", badge: "Blanco", code: "JOB", img: "images/jorgito-blanco.webp" },
-  { id: "capitan-blanco", name: "CAPITÁN DEL ESPACIO BLANCO", desc: "La mítica versión con baño blanco", cat: "pedidos", badge: "Blanco", code: "CPB", img: "images/capitan-blanco.webp" },
-  { id: "fantoche-blanco", name: "FANTOCHE BLANCO (DAY)", desc: "Triple blanco clásico", cat: "kiosco", badge: "Triple", code: "FNB", img: "images/fantoche-blanco.webp" },
-  { id: "tofi-negro", name: "TOFI NEGRO", desc: "El alfajor suave de dulce de leche Arcor", cat: "kiosco", badge: "Tofi", code: "TOF", img: "images/tofi-negro.webp" },
-  { id: "vauquita", name: "VAUQUITA", desc: "Relleno del auténtico dulce de leche de campo", cat: "kiosco", badge: "Vauquita", code: "VAU", img: "images/vauquita.webp" }
+// 64 Argentine Alfajores Catalog (Sin imágenes)
+const DEFAULT_ALFAJORES_64 = [
+  { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "kiosco", badge: "Blanco", code: "TB" },
+  { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "kiosco", badge: "Oreo", code: "MO" },
+  { id: "terrabusi-glaseado-blanco", name: "TERRABUSI GLASEADO BLANCO", desc: "El clásico escolar con baño glasé de azúcar", cat: "kiosco", badge: "Glasé", code: "TG" },
+  { id: "milka-mousse-blanco", name: "MILKA MOUSSE BLANCO", desc: "Relleno de mousse y cobertura blanca", cat: "kiosco", badge: "Mousse B", code: "MMB" },
+  { id: "milka-mousse-negro", name: "MILKA MOUSSE NEGRO", desc: "Relleno de mousse y chocolate con leche", cat: "kiosco", badge: "Mousse N", code: "MMN" },
+  { id: "block", name: "BLOCK", desc: "Cofler Block con maní y puro chocolate", cat: "kiosco", badge: "Cofler", code: "BLK" },
+  { id: "bonobon", name: "BONOBON", desc: "Relleno de crema de maní y oblea crujiente", cat: "kiosco", badge: "Bon o Bon", code: "BOB" },
+  { id: "pepito", name: "PEPITO", desc: "Galleta con chispas de chocolate y dulce de leche", cat: "kiosco", badge: "Chips", code: "PEP" },
+  { id: "chocotorta", name: "CHOCOTORTA", desc: "Sabor original con galletitas Chocolinas", cat: "kiosco", badge: "Torta", code: "CHO" },
+  { id: "cachafaz-n", name: "CACHAFAZ NEGRO", desc: "Cachafaz Negro bañado en chocolate amargo", cat: "premium", badge: "Negro", code: "CN" },
+  { id: "cachafaz-b", name: "CACHAFAZ BLANCO", desc: "Cachafaz Blanco con baño suave de repostería", cat: "premium", badge: "Blanco", code: "CB" },
+  { id: "shot-b", name: "SHOT BLANCO", desc: "Shot Blanco con maní crocante y chocolate blanco", cat: "kiosco", badge: "Blanco", code: "SHB" },
+  { id: "shot-n", name: "SHOT NEGRO", desc: "Chocolate con leche y trozos de maní crocante", cat: "kiosco", badge: "Maní", code: "SHN" },
+  { id: "gula", name: "GULA", desc: "Mega alfajor artesanal relleno extra contundente", cat: "artesanal", badge: "Gula", code: "GUL" },
+  { id: "capitan-del-espacio", name: "CAPITÁN DEL ESPACIO NEGRO", desc: "El mito absoluto del conurbano quilmeño", cat: "mítico", badge: "Mítico", code: "CAP" },
+  { id: "capitan-blanco", name: "CAPITÁN DEL ESPACIO BLANCO", desc: "La mítica versión con baño blanco", cat: "mítico", badge: "Blanco", code: "CPB" },
+  { id: "guaymallen-choco", name: "GUAYMALLÉN CHOCOLATE", desc: "El rey popular y de los recreos", cat: "kiosco", badge: "Clásico", code: "GUY" },
+  { id: "guaymallen-blanco", name: "GUAYMALLÉN BLANCO", desc: "El clásico de vainilla con glasé", cat: "kiosco", badge: "Blanco", code: "GUB" },
+  { id: "guaymallen-oro", name: "GUAYMALLÉN ORO", desc: "Triple premium de masa suave y dulce selecto", cat: "kiosco", badge: "Oro", code: "ORO" },
+  { id: "guaymallen-fruta", name: "GUAYMALLÉN MEMBRILLO", desc: "Relleno tradicional de membrillo", cat: "kiosco", badge: "Fruta", code: "GUM" },
+  { id: "havanna-clasico", name: "HAVANNA CLÁSICO", desc: "El ícono marplatense por excelencia", cat: "costa", badge: "Costa", code: "HAV" },
+  { id: "havanna-sal-marina", name: "HAVANNA MAR DEL PLATA", desc: "Edición 150 años con sal marina", cat: "costa", badge: "Furor", code: "HSM" },
+  { id: "havanna-70", name: "HAVANNA 70% CACAO", desc: "Puro chocolate amargo 70%", cat: "costa", badge: "70%", code: "H70" },
+  { id: "havanna-nuez", name: "HAVANNA NUEZ", desc: "Masa especial con trozos de nuez", cat: "costa", badge: "Nuez", code: "HNU" },
+  { id: "jorgito-negro", name: "JORGITO CHOCOLATE", desc: "El gran clásico de chocolate barrial", cat: "kiosco", badge: "Clásico", code: "JOR" },
+  { id: "jorgito-blanco", name: "JORGITO BLANCO", desc: "Bañado en azúcar glasé suave", cat: "kiosco", badge: "Blanco", code: "JOB" },
+  { id: "jorgito-mousse", name: "JORGITO MOUSSE", desc: "Relleno de mousse de chocolate", cat: "kiosco", badge: "Mousse", code: "JMO" },
+  { id: "jorgelin-triple", name: "JORGELÍN TRIPLE", desc: "La versión gigante del clásico Jorgito", cat: "kiosco", badge: "Triple", code: "JGT" },
+  { id: "cachafaz-maicena", name: "CACHAFAZ MAICENA", desc: "El referente de maicena con coco", cat: "premium", badge: "Maicena", code: "CMA" },
+  { id: "cachafaz-mousse", name: "CACHAFAZ MOUSSE", desc: "Chocolate belga y relleno aireado", cat: "premium", badge: "Mousse", code: "CMU" },
+  { id: "fantoche-triple", name: "FANTOCHE TRIPLE NEGRO", desc: "El pionero creador del alfajor triple", cat: "kiosco", badge: "Pionero", code: "FAN" },
+  { id: "fantoche-blanco", name: "FANTOCHE BLANCO (DAY)", desc: "Triple blanco clásico", cat: "kiosco", badge: "Triple", code: "FNB" },
+  { id: "fantoche-cuadruple", name: "FANTOCHE CUÁDRUPLE", desc: "Cuatro capas de masa y dulce de leche", cat: "kiosco", badge: "Cuádruple", code: "FCU" },
+  { id: "rasta-negro", name: "RASTA NEGRO", desc: "Galleta crujiente y abundante dulce de leche", cat: "kiosco", badge: "Furor", code: "RAS" },
+  { id: "rasta-blanco", name: "RASTA BLANCO", desc: "Versión chocolate blanco extra crocante", cat: "kiosco", badge: "Blanco", code: "RAB" },
+  { id: "balcarce-choco", name: "BALCARCE CHOCOLATE", desc: "Hojaldre, merengue y sabor serrano", cat: "costa", badge: "Tradición", code: "BAL" },
+  { id: "balcarce-merengue", name: "BALCARCE MERENGUE", desc: "Baño crocante de merengue italiano", cat: "costa", badge: "Merengue", code: "BME" },
+  { id: "balcarce-nuez", name: "BALCARCE NUEZ", desc: "Relleno selecto con nueces enteras", cat: "costa", badge: "Nuez", code: "BNU" },
+  { id: "fulbito", name: "FULBITO MANÍ", desc: "Pura nostalgia escolar de los 90s", cat: "kiosco", badge: "Nostalgia", code: "FUL" },
+  { id: "tatin-simple", name: "TATÍN SIMPLE", desc: "El clásico de quiosco a precio popular", cat: "kiosco", badge: "Retro", code: "TAT" },
+  { id: "tatin-triple", name: "TATÍN TRIPLE", desc: "Tres tapas con baño de repostería", cat: "kiosco", badge: "Triple", code: "TTR" },
+  { id: "grandote-triple", name: "GRANDOTE TRIPLE", desc: "Doble piso y máxima contundencia popular", cat: "kiosco", badge: "Triple", code: "GRA" },
+  { id: "tofi-negro", name: "TOFI NEGRO", desc: "El alfajor suave de dulce de leche Arcor", cat: "kiosco", badge: "Tofi", code: "TOF" },
+  { id: "tofi-blanco", name: "TOFI BLANCO", desc: "Cobertura blanca cremosa de Arcor", cat: "kiosco", badge: "Blanco", code: "TOB" },
+  { id: "vauquita", name: "VAUQUITA", desc: "Relleno del auténtico dulce de leche de campo", cat: "kiosco", badge: "Vauquita", code: "VAU" },
+  { id: "aguila-clasico", name: "ÁGUILA CLÁSICO", desc: "Puro chocolate Águila semiamargo", cat: "premium", badge: "Águila", code: "AGU" },
+  { id: "aguila-mini-torta-coco", name: "ÁGUILA MINI TORTA COCO", desc: "Torta alfajor con dulce de leche y coco", cat: "premium", badge: "Torta", code: "ATC" },
+  { id: "aguila-brownie", name: "ÁGUILA BROWNIE", desc: "Masa húmeda tipo brownie y chocolate", cat: "premium", badge: "Brownie", code: "ABR" },
+  { id: "suchard", name: "SUCHARD CHOCOLATE", desc: "El mítico mousse de los años 80 reeditado", cat: "kiosco", badge: "Mítico", code: "SUC" },
+  { id: "la-aldea-negro", name: "LA ALDEA CHOCOLATE NEGRO", desc: "Alfajor marplatense extra relleno", cat: "costa", badge: "Aldea", code: "ALD" },
+  { id: "la-aldea-ddl", name: "LA ALDEA DDL EXTREMO", desc: "70% de dulce de leche en peso", cat: "costa", badge: "Extremo", code: "ADL" },
+  { id: "entre-dos-whisky", name: "ENTRE DOS WHISKY", desc: "Mendoza: dulce de leche con toque de whisky", cat: "regional", badge: "Mendoza", code: "EDW" },
+  { id: "entre-dos-ron", name: "ENTRE DOS RON", desc: "Mendoza: chocolate negro y ron dulce", cat: "regional", badge: "Mendoza", code: "EDR" },
+  { id: "cerro-azul", name: "CERRO AZUL", desc: "Campeón del Mundial del Alfajor", cat: "artesanal", badge: "Campeón", code: "CAZ" },
+  { id: "nazareno", name: "NAZARENO CÓRDOBA", desc: "Tradicional alfajor cordobés hojaldrado", cat: "regional", badge: "Córdoba", code: "NAZ" },
+  { id: "la-quinta", name: "LA QUINTA", desc: "Carlos Paz: clásico cordobés de fruta", cat: "regional", badge: "Córdoba", code: "LQU" },
+  { id: "chammas", name: "CHAMMAS CÓRDOBA", desc: "El más antiguo de Argentina desde 1869", cat: "regional", badge: "1869", code: "CHA" },
+  { id: "estancia-rosario", name: "ESTANCIA EL ROSARIO", desc: "La Cumbre, Córdoba: receta serrana", cat: "regional", badge: "Serrano", code: "EER" },
+  { id: "marley", name: "MARLEY BAJONERO", desc: "Galleta artesanal con relleno súper generoso", cat: "artesanal", badge: "Bajón", code: "MAR" },
+  { id: "milka-triple-ddl", name: "MILKA TRIPLE DDL", desc: "Triple chocolate Milka y dulce de leche", cat: "kiosco", badge: "Triple", code: "MTD" },
+  { id: "oreo-triple", name: "OREO TRIPLE", desc: "Galletitas Oreo triples con dulce de leche", cat: "kiosco", badge: "Oreo", code: "OTR" },
+  { id: "cofler-extra", name: "COFLER EXTRA CHOCOLATE", desc: "Puro baño de repostería Cofler Arcor", cat: "kiosco", badge: "Cofler", code: "COF" },
+  { id: "terrabusi-triple", name: "TERRABUSI TRIPLE", desc: "El clásico kiosquero de triple capa", cat: "kiosco", badge: "Triple", code: "TTB" },
+  { id: "guolis", name: "GUOLIS CORAZÓN DDL", desc: "Mar del Plata: centro fluido de dulce de leche", cat: "costa", badge: "Guolis", code: "GUO" }
 ];
 
-// Progression for 32 tournament
+// Progression for 64 tournament (starting at 32avos)
 function getNextSlotId(slotId) {
   if (slotId === 'FINAL_L' || slotId === 'FINAL_R') return 'CHAMPION';
 
@@ -110,8 +142,8 @@ function getNextSlotId(slotId) {
   const roundIdx = parseInt(parts[1].replace('R', ''), 10);
   const matchIdx = parseInt(parts[2].replace('M', ''), 10);
 
-  // In 32: R0 (16avos), R1 (Octavos), R2 (Cuartos), R3 (Semis)
-  if (roundIdx === 3) {
+  // In 64: R0 (32avos), R1 (16avos), R2 (Octavos), R3 (Cuartos), R4 (Semis)
+  if (roundIdx === 4) {
     return side === 'L' ? 'FINAL_L' : 'FINAL_R';
   }
 
@@ -124,30 +156,19 @@ function loadState() {
   if (fs.existsSync(STATE_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-      const defaultMap = new Map(DEFAULT_ALFAJORES_32.map(a => [a.id, a]));
       
-      // Merge defaults with saved list
-      let alfajores = [...DEFAULT_ALFAJORES_32];
-      if (Array.isArray(data.alfajores)) {
+      let alfajores = [...DEFAULT_ALFAJORES_64];
+      if (Array.isArray(data.alfajores) && data.alfajores.length >= 32) {
         const customOnes = data.alfajores.filter(a => a.id.startsWith('custom-'));
-        alfajores = [...DEFAULT_ALFAJORES_32, ...customOnes];
+        alfajores = [...DEFAULT_ALFAJORES_64, ...customOnes];
       }
 
-      const bracketState = data.bracketState || {};
-      // Update image paths for bracket
-      Object.keys(bracketState).forEach(slotId => {
-        const item = bracketState[slotId];
-        if (item && defaultMap.has(item.id)) {
-          bracketState[slotId] = { ...item, img: defaultMap.get(item.id).img };
-        }
-      });
-
       return {
-        size: 32,
+        size: 64,
         alfajores,
-        bracketState,
-        activeMatch: data.activeMatch || null, // { matchKey, slotA, slotB, label }
-        votes: data.votes || {}, // { [matchKey]: { [slotKey]: [voterIds...] } }
+        bracketState: data.bracketState || {},
+        activeMatch: data.activeMatch || null,
+        votes: data.votes || {},
         updatedAt: new Date().toISOString()
       };
     } catch (e) {
@@ -155,10 +176,10 @@ function loadState() {
     }
   }
 
-  // Fresh initial 32 state
+  // Fresh initial 64 state
   const state = {
-    size: 32,
-    alfajores: [...DEFAULT_ALFAJORES_32],
+    size: 64,
+    alfajores: [...DEFAULT_ALFAJORES_64],
     bracketState: {},
     activeMatch: null,
     votes: {},
@@ -289,7 +310,7 @@ app.post('/api/finish-match', (req, res) => {
     tournamentState.bracketState[nextSlot] = current;
   }
 
-  // Clear or mark finished
+  // Clear active match
   tournamentState.activeMatch = null;
 
   saveState();
@@ -329,18 +350,17 @@ app.post('/api/bracket/advance', (req, res) => {
   res.json({ success: true, nextSlot, alfajor: current });
 });
 
-// 6. Fill Initial 32 Slots with Catalog
+// 6. Fill Initial 64 Slots with Catalog
 app.post('/api/bracket/fill-all', (req, res) => {
-  const initialSlots = [
-    'L_R0_M0_A', 'L_R0_M0_B', 'L_R0_M1_A', 'L_R0_M1_B',
-    'L_R0_M2_A', 'L_R0_M2_B', 'L_R0_M3_A', 'L_R0_M3_B',
-    'L_R0_M4_A', 'L_R0_M4_B', 'L_R0_M5_A', 'L_R0_M5_B',
-    'L_R0_M6_A', 'L_R0_M6_B', 'L_R0_M7_A', 'L_R0_M7_B',
-    'R_R0_M0_A', 'R_R0_M0_B', 'R_R0_M1_A', 'R_R0_M1_B',
-    'R_R0_M2_A', 'R_R0_M2_B', 'R_R0_M3_A', 'R_R0_M3_B',
-    'R_R0_M4_A', 'R_R0_M4_B', 'R_R0_M5_A', 'R_R0_M5_B',
-    'R_R0_M6_A', 'R_R0_M6_B', 'R_R0_M7_A', 'R_R0_M7_B'
-  ];
+  const initialSlots = [];
+  for (let m = 0; m < 16; m++) {
+    initialSlots.push(`L_R0_M${m}_A`);
+    initialSlots.push(`L_R0_M${m}_B`);
+  }
+  for (let m = 0; m < 16; m++) {
+    initialSlots.push(`R_R0_M${m}_A`);
+    initialSlots.push(`R_R0_M${m}_B`);
+  }
 
   const usedIds = new Set(Object.values(tournamentState.bracketState).map(a => a?.id).filter(Boolean));
   const available = tournamentState.alfajores.filter(a => !usedIds.has(a.id));
@@ -370,7 +390,7 @@ app.post('/api/bracket/reset', (req, res) => {
 
 // 8. Add custom alfajor
 app.post('/api/alfajor/add', (req, res) => {
-  const { name, img } = req.body;
+  const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
 
   const newAlf = {
@@ -379,8 +399,7 @@ app.post('/api/alfajor/add', (req, res) => {
     desc: 'Alfajor personalizado de la oficina',
     cat: 'pedidos',
     badge: 'Custom',
-    code: name.substring(0, 3).toUpperCase(),
-    img: img || 'images/alfajor-default.webp'
+    code: name.substring(0, 3).toUpperCase()
   };
 
   tournamentState.alfajores.unshift(newAlf);
@@ -406,7 +425,7 @@ app.post('/api/alfajor/delete', (req, res) => {
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
     console.log('\n=============================================================');
-    console.log('   🏆 MUNDIAL DE ALFAJORES (32) - SERVIDOR DE OFICINA 🏆');
+    console.log('   🏆 MUNDIAL DE ALFAJORES (64 - 32AVOS) - SERVIDOR 🏆');
     console.log('=============================================================');
     console.log(` • Servidor local (esta PC):     http://localhost:${PORT}`);
     console.log(` • Servidor para celulares (LAN): http://${localIP}:${PORT}`);

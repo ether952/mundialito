@@ -39,84 +39,81 @@ header {
   justify-content: space-between;
   align-items: center;
   background: var(--surface);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
-  flex-wrap: wrap;
-  gap: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .header-titles h1 {
   font-size: 19px;
   font-weight: 900;
-  letter-spacing: -0.5px;
   text-transform: uppercase;
+  letter-spacing: -0.5px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .badge-32 {
-  background: #000000;
+  background: #0f172a;
   color: #ffffff;
   font-size: 11px;
-  font-weight: 900;
   padding: 2px 7px;
   border-radius: 4px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
 }
 
 .connection-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 3px 9px;
+  background: #fef3c7;
+  border: 1.5px solid #d97706;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: 700;
-  background: #e2e8f0;
-  color: #334155;
-  transition: all 0.2s ease;
+  font-weight: 800;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .connection-pill.live {
   background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
+  border-color: #16a34a;
+  color: #166534;
 }
 
 .connection-pill .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #22c55e;
-  animation: pulse-green 1.8s infinite;
+  background: #16a34a;
+  animation: pulse 1.6s infinite;
 }
 
-@keyframes pulse-green {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .btn-qr {
   background: #0f172a;
   color: #ffffff;
   border: none;
-  padding: 6px 14px;
+  padding: 6px 12px;
   font-size: 12px;
   font-weight: 800;
   border-radius: 6px;
@@ -157,7 +154,7 @@ button.btn:hover {
 .duel-banner-wrap {
   background: #ffffff;
   border-bottom: 2px solid var(--border-dark);
-  padding: 12px 20px;
+  padding: 10px 18px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 80;
@@ -173,7 +170,7 @@ button.btn:hover {
 }
 
 .duel-banner-active {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -181,22 +178,25 @@ button.btn:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.duel-title {
-  font-size: 13px;
+.duel-title-tag {
+  font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #0f172a;
+  letter-spacing: 1px;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-close-duel {
   background: none;
   border: 1px solid var(--border);
-  padding: 2px 8px;
   border-radius: 4px;
+  padding: 2px 7px;
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
@@ -226,7 +226,7 @@ button.btn:hover {
   background: #f8fafc;
   border: 2px solid var(--border-dark);
   border-radius: 10px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -246,14 +246,20 @@ button.btn:hover {
   background: #eff6ff;
 }
 
-.duel-img {
-  width: 72px;
-  height: 72px;
-  min-width: 72px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1.5px solid var(--border-dark);
-  background: #ffffff;
+.duel-code-circle {
+  width: 54px;
+  height: 54px;
+  min-width: 54px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  border: 2.5px solid #cbd5e1;
 }
 
 .duel-info {
@@ -269,14 +275,14 @@ button.btn:hover {
 }
 
 .duel-badge {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 800;
   background: #0f172a;
   color: #ffffff;
   padding: 1px 6px;
   border-radius: 4px;
   display: inline-block;
-  margin: 3px 0 6px 0;
+  margin: 2px 0 6px 0;
   text-transform: uppercase;
 }
 
@@ -286,7 +292,7 @@ button.btn:hover {
   border: none;
   border-radius: 6px;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   cursor: pointer;
   display: inline-flex;
@@ -314,8 +320,8 @@ button.btn:hover {
 }
 
 .vs-circle {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: #0f172a;
   color: #ffffff;
   border-radius: 50%;
@@ -323,7 +329,7 @@ button.btn:hover {
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 13px;
+  font-size: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -331,9 +337,9 @@ button.btn:hover {
   background: #16a34a;
   color: #ffffff;
   border: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: 6px;
   cursor: pointer;
   box-shadow: 0 3px 0 #15803d;
@@ -362,8 +368,8 @@ button.btn:hover {
 
 /* Sidebar with Catalog & Lupa */
 aside.sidebar {
-  width: 320px;
-  min-width: 320px;
+  width: 300px;
+  min-width: 300px;
   border-right: 2px solid var(--border-dark);
   display: flex;
   flex-direction: column;
@@ -373,7 +379,7 @@ aside.sidebar {
 }
 
 .sidebar-header {
-  padding: 10px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -415,7 +421,7 @@ aside.sidebar {
 
 .search-box {
   width: 100%;
-  padding: 7px 9px 7px 30px;
+  padding: 6px 9px 6px 28px;
   font-size: 12px;
   border: 1.5px solid var(--border-dark);
   border-radius: 6px;
@@ -446,7 +452,7 @@ aside.sidebar {
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .alfajor-item {
@@ -481,35 +487,30 @@ aside.sidebar {
   color: #ffffff;
 }
 
+.alfajor-item.selected-for-place .alfajor-code-badge {
+  background: #ffffff;
+  color: #0f172a;
+}
+
 .alfajor-item.used {
-  opacity: 0.4;
+  opacity: 0.35;
   border-style: dashed;
   background: #f8fafc;
 }
 
-.alfajor-img-thumb {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
+.alfajor-code-badge {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
   border-radius: 6px;
-  border: 1px solid var(--border-dark);
-  background: #ffffff;
-  object-fit: cover;
-}
-
-.alfajor-img-fallback {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  border-radius: 6px;
-  border: 1px solid var(--border-dark);
   background: #0f172a;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
+  letter-spacing: 0.5px;
 }
 
 .alfajor-info {
@@ -518,7 +519,7 @@ aside.sidebar {
 }
 
 .alfajor-name {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -526,7 +527,7 @@ aside.sidebar {
 }
 
 .alfajor-desc {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -534,10 +535,10 @@ aside.sidebar {
 }
 
 .alfajor-badge {
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
-  padding: 1.5px 5px;
+  padding: 1px 4px;
   border-radius: 3px;
   border: 1px solid #0f172a;
   white-space: nowrap;
@@ -561,38 +562,33 @@ aside.sidebar {
   padding: 8px 10px;
   border-top: 1px solid var(--border);
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.custom-add-form-row {
-  display: flex;
   gap: 5px;
 }
 
 .custom-add-form input {
-  padding: 5px 8px;
+  flex: 1;
+  padding: 6px 8px;
   font-size: 11px;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-dark);
   border-radius: 4px;
   outline: none;
 }
 
 /* ============================================================
-   MAIN BRACKET VIEWPORT (32 BRACKET)
+   MAIN BRACKET VIEWPORT (32AVOS / 64 BRACKET)
    ============================================================ */
 main.bracket-viewport {
   flex: 1;
   overflow: auto;
   background: #f8fafc;
-  padding: 16px 20px 80px 20px;
+  padding: 14px 18px 80px 18px;
   position: relative;
   text-align: center;
 }
 
 .zoom-floating-bar {
   position: sticky;
-  top: 10px;
+  top: 8px;
   z-index: 60;
   display: inline-flex;
   align-items: center;
@@ -602,14 +598,14 @@ main.bracket-viewport {
   padding: 4px 10px;
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .zoom-btn {
   background: #ffffff;
   border: 1px solid var(--border-dark);
-  padding: 3px 8px;
-  font-size: 11.5px;
+  padding: 2px 7px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
   border-radius: 4px;
@@ -639,13 +635,13 @@ main.bracket-viewport {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .bracket-half {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .bracket-half.right {
@@ -655,17 +651,17 @@ main.bracket-viewport {
 .round-column {
   display: flex;
   flex-direction: column;
-  width: 230px;
+  width: 200px;
 }
 
 .round-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-align: center;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
   border-bottom: 2px solid var(--border-dark);
 }
 
@@ -679,28 +675,28 @@ main.bracket-viewport {
 .matchup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   position: relative;
   background: #ffffff;
   border: 1.5px solid var(--border-dark);
-  border-radius: 8px;
-  padding: 6px;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.08);
-  margin-bottom: 8px;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 1.5px 1.5px 0px rgba(0, 0, 0, 0.08);
+  margin-bottom: 5px;
 }
 
 .matchup.active-in-duel {
   border: 2px solid #2563eb;
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.35);
 }
 
 .btn-select-match {
   width: 100%;
   background: #f1f5f9;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2.5px 6px;
-  font-size: 9.5px;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 9px;
   font-weight: 800;
   color: #0f172a;
   cursor: pointer;
@@ -709,7 +705,7 @@ main.bracket-viewport {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .btn-select-match:hover {
@@ -720,13 +716,13 @@ main.bracket-viewport {
 /* Bracket Slot */
 .bracket-slot {
   width: 100%;
-  height: 52px;
+  height: 38px;
   border: 1.5px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   background: var(--slot-bg);
   display: flex;
   align-items: center;
-  padding: 3px 6px;
+  padding: 2px 5px;
   position: relative;
   transition: all 0.12s ease;
   cursor: pointer;
@@ -748,7 +744,7 @@ main.bracket-viewport {
 }
 
 .slot-placeholder {
-  font-size: 10px;
+  font-size: 9.5px;
   color: #94a3b8;
   font-style: italic;
   text-align: center;
@@ -761,33 +757,22 @@ main.bracket-viewport {
   align-items: center;
   width: 100%;
   height: 100%;
-  gap: 6px;
+  gap: 5px;
   cursor: grab;
 }
 
-.slot-thumb {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 4px;
-  border: 1px solid var(--border-dark);
-  object-fit: cover;
-  background: #ffffff;
-}
-
-.slot-thumb-fallback {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 4px;
-  border: 1px solid var(--border-dark);
+.slot-code-pill {
+  font-size: 9px;
+  font-weight: 900;
   background: #0f172a;
   color: #ffffff;
-  display: flex;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 900;
+  min-width: 26px;
 }
 
 .slot-title-box {
@@ -796,20 +781,12 @@ main.bracket-viewport {
 }
 
 .slot-name {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #0f172a;
-}
-
-.slot-sub {
-  font-size: 9px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .slot-controls {
@@ -822,9 +799,9 @@ main.bracket-viewport {
   background: #ffffff;
   border: 1px solid var(--border-dark);
   cursor: pointer;
-  font-size: 9.5px;
+  font-size: 9px;
   border-radius: 3px;
-  padding: 2.5px 5px;
+  padding: 2px 4px;
   color: #0f172a;
   font-weight: bold;
 }
@@ -849,8 +826,8 @@ main.bracket-viewport {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 240px;
-  padding: 0 10px;
+  width: 220px;
+  padding: 0 8px;
   position: relative;
 }
 
@@ -858,12 +835,12 @@ main.bracket-viewport {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   width: 100%;
 }
 
 .trophy-badge {
-  font-size: 38px;
+  font-size: 36px;
   line-height: 1;
   margin-bottom: 4px;
   animation: bounce 2s infinite ease-in-out;
@@ -871,7 +848,7 @@ main.bracket-viewport {
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-5px); }
 }
 
 .champion-label {
@@ -879,12 +856,12 @@ main.bracket-viewport {
   font-weight: 900;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-align: center;
 }
 
 .champion-slot {
-  height: 68px;
+  height: 54px;
   border: 2px solid var(--border-dark);
   box-shadow: 3px 3px 0px #0f172a;
   background: #ffffff;
@@ -895,23 +872,23 @@ main.bracket-viewport {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 8px;
+  gap: 6px;
   background: #ffffff;
   border: 2px solid var(--border-dark);
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
   box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
 }
 
 .vs-tag-bracket {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: 1.5px solid var(--border-dark);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 900;
   background: #ffffff;
 }

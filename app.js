@@ -1,45 +1,77 @@
-// 32 Argentine Alfajores Catalog with verified local image packshots
-const DEFAULT_ALFAJORES_32 = [
-  { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "pedidos", badge: "Blanco", code: "TB", img: "images/terrabusi-blanco.webp" },
-  { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "pedidos", badge: "Oreo", code: "MO", img: "images/milka-oreo.webp" },
-  { id: "terrabusi-glaseado-blanco", name: "TERRABUSI GLASEADO BLANCO", desc: "El clásico escolar con baño glasé de azúcar", cat: "pedidos", badge: "Glasé", code: "TG", img: "images/terrabusi-glaseado-blanco.webp" },
-  { id: "milka-mousse-blanco", name: "MILKA MOUSSE BLANCO", desc: "Relleno de mousse y cobertura blanca", cat: "pedidos", badge: "Mousse B", code: "MMB", img: "images/milka-mousse-blanco.webp" },
-  { id: "milka-mousse-negro", name: "MILKA MOUSSE NEGRO", desc: "Relleno de mousse y chocolate con leche", cat: "pedidos", badge: "Mousse N", code: "MMN", img: "images/milka-mousse-negro.webp" },
-  { id: "block", name: "BLOCK", desc: "Cofler Block con maní y puro chocolate", cat: "pedidos", badge: "Cofler", code: "BLK", img: "images/block.webp" },
-  { id: "bonobon", name: "BONOBON", desc: "Relleno de crema de maní y oblea crujiente", cat: "pedidos", badge: "Bon o Bon", code: "BOB", img: "images/bonobon.webp" },
-  { id: "pepito", name: "PEPITO", desc: "Galleta con chispas de chocolate y dulce de leche", cat: "pedidos", badge: "Chips", code: "PEP", img: "images/pepito.webp" },
-  { id: "chocotorta", name: "CHOCOTORTA", desc: "Sabor original con galletitas Chocolinas", cat: "pedidos", badge: "Torta", code: "CHO", img: "images/chocotorta.webp" },
-  { id: "cachafaz-n", name: "CACHAFAZ N", desc: "Cachafaz Negro bañado en chocolate amargo", cat: "pedidos", badge: "Negro", code: "CN", img: "images/cachafaz-n.webp" },
-  { id: "cachafaz-b", name: "CACHAFAZ B", desc: "Cachafaz Blanco con baño suave de repostería", cat: "pedidos", badge: "Blanco", code: "CB", img: "images/cachafaz-b.webp" },
-  { id: "shot-b", name: "SHOT B", desc: "Shot Blanco con maní crocante y chocolate blanco", cat: "pedidos", badge: "Blanco", code: "SHB", img: "images/shot-b.png" },
-  { id: "gula", name: "GULA", desc: "Mega alfajor artesanal relleno extra contundente", cat: "pedidos", badge: "Gula", code: "GUL", img: "images/gula.webp" },
-  { id: "capitan-del-espacio", name: "CAPITAN DEL ESPACIO", desc: "El mito absoluto del conurbano quilmeño", cat: "pedidos", badge: "Mítico", code: "CAP", img: "images/capitan-del-espacio.webp" },
-  { id: "guaymallen", name: "GUAYMALLÉN CHOCOLATE", desc: "El rey popular y de los recreos", cat: "kiosco", badge: "Clásico", code: "GUY", img: "images/guaymallen.webp" },
-  { id: "havanna-clasico", name: "HAVANNA CLÁSICO", desc: "El ícono marplatense por excelencia", cat: "costa", badge: "Costa", code: "HAV", img: "images/havanna-clasico.webp" },
-  { id: "havanna-sal-marina", name: "HAVANNA MAR DEL PLATA", desc: "Edición 150 años con sal marina", cat: "costa", badge: "Furor", code: "HSM", img: "images/havanna-sal-marina.webp" },
-  { id: "jorgito-negro", name: "JORGITO CHOCOLATE", desc: "El gran clásico de chocolate barrial", cat: "kiosco", badge: "Clásico", code: "JOR", img: "images/jorgito-negro.webp" },
-  { id: "cachafaz-maicena", name: "CACHAFAZ MAICENA", desc: "El referente de maicena con coco", cat: "kiosco", badge: "Maicena", code: "CMA", img: "images/cachafaz-maicena.webp" },
-  { id: "fantoche-triple", name: "FANTOCHE TRIPLE", desc: "El pionero creador del alfajor triple", cat: "kiosco", badge: "Pionero", code: "FAN", img: "images/fantoche-triple.webp" },
-  { id: "rasta", name: "RASTA", desc: "Galleta crujiente y abundante dulce de leche", cat: "kiosco", badge: "Furor", code: "RAS", img: "images/rasta.webp" },
-  { id: "balcarce", name: "BALCARCE", desc: "Hojaldre, merengue y sabor serrano", cat: "costa", badge: "Tradición", code: "BAL", img: "images/balcarce.webp" },
-  { id: "fulbito", name: "FULBITO MANÍ", desc: "Pura nostalgia escolar de los 90s", cat: "kiosco", badge: "Nostalgia", code: "FUL", img: "images/fulbito.jpg" },
-  { id: "jorgelin-triple", name: "JORGELÍN TRIPLE", desc: "La versión gigante del clásico Jorgito", cat: "kiosco", badge: "Triple", code: "JGT", img: "images/jorgelin-triple.webp" },
-  { id: "tatin-simple", name: "TATÍN SIMPLE", desc: "El clásico de quiosco a precio popular", cat: "kiosco", badge: "Retro", code: "TAT", img: "images/tatin-simple.webp" },
-  { id: "grandote-triple", name: "GRANDOTE TRIPLE", desc: "Doble piso y máxima contundencia popular", cat: "kiosco", badge: "Triple", code: "GRA", img: "images/grandote-triple.webp" },
-  { id: "guaymallen-blanco", name: "GUAYMALLÉN BLANCO", desc: "El clásico de vainilla con glasé", cat: "kiosco", badge: "Blanco", code: "GUB", img: "images/guaymallen-blanco.webp" },
-  { id: "jorgito-blanco", name: "JORGITO BLANCO", desc: "Bañado en azúcar glasé suave", cat: "kiosco", badge: "Blanco", code: "JOB", img: "images/jorgito-blanco.webp" },
-  { id: "capitan-blanco", name: "CAPITÁN DEL ESPACIO BLANCO", desc: "La mítica versión con baño blanco", cat: "pedidos", badge: "Blanco", code: "CPB", img: "images/capitan-blanco.webp" },
-  { id: "fantoche-blanco", name: "FANTOCHE BLANCO (DAY)", desc: "Triple blanco clásico", cat: "kiosco", badge: "Triple", code: "FNB", img: "images/fantoche-blanco.webp" },
-  { id: "tofi-negro", name: "TOFI NEGRO", desc: "El alfajor suave de dulce de leche Arcor", cat: "kiosco", badge: "Tofi", code: "TOF", img: "images/tofi-negro.webp" },
-  { id: "vauquita", name: "VAUQUITA", desc: "Relleno del auténtico dulce de leche de campo", cat: "kiosco", badge: "Vauquita", code: "VAU", img: "images/vauquita.webp" }
+// 64 Argentine Alfajores Catalog (Sin imágenes / Rendimiento ultra rápido)
+const DEFAULT_ALFAJORES_64 = [
+  { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "kiosco", badge: "Blanco", code: "TB" },
+  { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "kiosco", badge: "Oreo", code: "MO" },
+  { id: "terrabusi-glaseado-blanco", name: "TERRABUSI GLASEADO BLANCO", desc: "El clásico escolar con baño glasé de azúcar", cat: "kiosco", badge: "Glasé", code: "TG" },
+  { id: "milka-mousse-blanco", name: "MILKA MOUSSE BLANCO", desc: "Relleno de mousse y cobertura blanca", cat: "kiosco", badge: "Mousse B", code: "MMB" },
+  { id: "milka-mousse-negro", name: "MILKA MOUSSE NEGRO", desc: "Relleno de mousse y chocolate con leche", cat: "kiosco", badge: "Mousse N", code: "MMN" },
+  { id: "block", name: "BLOCK", desc: "Cofler Block con maní y puro chocolate", cat: "kiosco", badge: "Cofler", code: "BLK" },
+  { id: "bonobon", name: "BONOBON", desc: "Relleno de crema de maní y oblea crujiente", cat: "kiosco", badge: "Bon o Bon", code: "BOB" },
+  { id: "pepito", name: "PEPITO", desc: "Galleta con chispas de chocolate y dulce de leche", cat: "kiosco", badge: "Chips", code: "PEP" },
+  { id: "chocotorta", name: "CHOCOTORTA", desc: "Sabor original con galletitas Chocolinas", cat: "kiosco", badge: "Torta", code: "CHO" },
+  { id: "cachafaz-n", name: "CACHAFAZ NEGRO", desc: "Cachafaz Negro bañado en chocolate amargo", cat: "premium", badge: "Negro", code: "CN" },
+  { id: "cachafaz-b", name: "CACHAFAZ BLANCO", desc: "Cachafaz Blanco con baño suave de repostería", cat: "premium", badge: "Blanco", code: "CB" },
+  { id: "shot-b", name: "SHOT BLANCO", desc: "Shot Blanco con maní crocante y chocolate blanco", cat: "kiosco", badge: "Blanco", code: "SHB" },
+  { id: "shot-n", name: "SHOT NEGRO", desc: "Chocolate con leche y trozos de maní crocante", cat: "kiosco", badge: "Maní", code: "SHN" },
+  { id: "gula", name: "GULA", desc: "Mega alfajor artesanal relleno extra contundente", cat: "artesanal", badge: "Gula", code: "GUL" },
+  { id: "capitan-del-espacio", name: "CAPITÁN DEL ESPACIO NEGRO", desc: "El mito absoluto del conurbano quilmeño", cat: "mítico", badge: "Mítico", code: "CAP" },
+  { id: "capitan-blanco", name: "CAPITÁN DEL ESPACIO BLANCO", desc: "La mítica versión con baño blanco", cat: "mítico", badge: "Blanco", code: "CPB" },
+  { id: "guaymallen-choco", name: "GUAYMALLÉN CHOCOLATE", desc: "El rey popular y de los recreos", cat: "kiosco", badge: "Clásico", code: "GUY" },
+  { id: "guaymallen-blanco", name: "GUAYMALLÉN BLANCO", desc: "El clásico de vainilla con glasé", cat: "kiosco", badge: "Blanco", code: "GUB" },
+  { id: "guaymallen-oro", name: "GUAYMALLÉN ORO", desc: "Triple premium de masa suave y dulce selecto", cat: "kiosco", badge: "Oro", code: "ORO" },
+  { id: "guaymallen-fruta", name: "GUAYMALLÉN MEMBRILLO", desc: "Relleno tradicional de membrillo", cat: "kiosco", badge: "Fruta", code: "GUM" },
+  { id: "havanna-clasico", name: "HAVANNA CLÁSICO", desc: "El ícono marplatense por excelencia", cat: "costa", badge: "Costa", code: "HAV" },
+  { id: "havanna-sal-marina", name: "HAVANNA MAR DEL PLATA", desc: "Edición 150 años con sal marina", cat: "costa", badge: "Furor", code: "HSM" },
+  { id: "havanna-70", name: "HAVANNA 70% CACAO", desc: "Puro chocolate amargo 70%", cat: "costa", badge: "70%", code: "H70" },
+  { id: "havanna-nuez", name: "HAVANNA NUEZ", desc: "Masa especial con trozos de nuez", cat: "costa", badge: "Nuez", code: "HNU" },
+  { id: "jorgito-negro", name: "JORGITO CHOCOLATE", desc: "El gran clásico de chocolate barrial", cat: "kiosco", badge: "Clásico", code: "JOR" },
+  { id: "jorgito-blanco", name: "JORGITO BLANCO", desc: "Bañado en azúcar glasé suave", cat: "kiosco", badge: "Blanco", code: "JOB" },
+  { id: "jorgito-mousse", name: "JORGITO MOUSSE", desc: "Relleno de mousse de chocolate", cat: "kiosco", badge: "Mousse", code: "JMO" },
+  { id: "jorgelin-triple", name: "JORGELÍN TRIPLE", desc: "La versión gigante del clásico Jorgito", cat: "kiosco", badge: "Triple", code: "JGT" },
+  { id: "cachafaz-maicena", name: "CACHAFAZ MAICENA", desc: "El referente de maicena con coco", cat: "premium", badge: "Maicena", code: "CMA" },
+  { id: "cachafaz-mousse", name: "CACHAFAZ MOUSSE", desc: "Chocolate belga y relleno aireado", cat: "premium", badge: "Mousse", code: "CMU" },
+  { id: "fantoche-triple", name: "FANTOCHE TRIPLE NEGRO", desc: "El pionero creador del alfajor triple", cat: "kiosco", badge: "Pionero", code: "FAN" },
+  { id: "fantoche-blanco", name: "FANTOCHE BLANCO (DAY)", desc: "Triple blanco clásico", cat: "kiosco", badge: "Triple", code: "FNB" },
+  { id: "fantoche-cuadruple", name: "FANTOCHE CUÁDRUPLE", desc: "Cuatro capas de masa y dulce de leche", cat: "kiosco", badge: "Cuádruple", code: "FCU" },
+  { id: "rasta-negro", name: "RASTA NEGRO", desc: "Galleta crujiente y abundante dulce de leche", cat: "kiosco", badge: "Furor", code: "RAS" },
+  { id: "rasta-blanco", name: "RASTA BLANCO", desc: "Versión chocolate blanco extra crocante", cat: "kiosco", badge: "Blanco", code: "RAB" },
+  { id: "balcarce-choco", name: "BALCARCE CHOCOLATE", desc: "Hojaldre, merengue y sabor serrano", cat: "costa", badge: "Tradición", code: "BAL" },
+  { id: "balcarce-merengue", name: "BALCARCE MERENGUE", desc: "Baño crocante de merengue italiano", cat: "costa", badge: "Merengue", code: "BME" },
+  { id: "balcarce-nuez", name: "BALCARCE NUEZ", desc: "Relleno selecto con nueces enteras", cat: "costa", badge: "Nuez", code: "BNU" },
+  { id: "fulbito", name: "FULBITO MANÍ", desc: "Pura nostalgia escolar de los 90s", cat: "kiosco", badge: "Nostalgia", code: "FUL" },
+  { id: "tatin-simple", name: "TATÍN SIMPLE", desc: "El clásico de quiosco a precio popular", cat: "kiosco", badge: "Retro", code: "TAT" },
+  { id: "tatin-triple", name: "TATÍN TRIPLE", desc: "Tres tapas con baño de repostería", cat: "kiosco", badge: "Triple", code: "TTR" },
+  { id: "grandote-triple", name: "GRANDOTE TRIPLE", desc: "Doble piso y máxima contundencia popular", cat: "kiosco", badge: "Triple", code: "GRA" },
+  { id: "tofi-negro", name: "TOFI NEGRO", desc: "El alfajor suave de dulce de leche Arcor", cat: "kiosco", badge: "Tofi", code: "TOF" },
+  { id: "tofi-blanco", name: "TOFI BLANCO", desc: "Cobertura blanca cremosa de Arcor", cat: "kiosco", badge: "Blanco", code: "TOB" },
+  { id: "vauquita", name: "VAUQUITA", desc: "Relleno del auténtico dulce de leche de campo", cat: "kiosco", badge: "Vauquita", code: "VAU" },
+  { id: "aguila-clasico", name: "ÁGUILA CLÁSICO", desc: "Puro chocolate Águila semiamargo", cat: "premium", badge: "Águila", code: "AGU" },
+  { id: "aguila-mini-torta-coco", name: "ÁGUILA MINI TORTA COCO", desc: "Torta alfajor con dulce de leche y coco", cat: "premium", badge: "Torta", code: "ATC" },
+  { id: "aguila-brownie", name: "ÁGUILA BROWNIE", desc: "Masa húmeda tipo brownie y chocolate", cat: "premium", badge: "Brownie", code: "ABR" },
+  { id: "suchard", name: "SUCHARD CHOCOLATE", desc: "El mítico mousse de los años 80 reeditado", cat: "kiosco", badge: "Mítico", code: "SUC" },
+  { id: "la-aldea-negro", name: "LA ALDEA CHOCOLATE NEGRO", desc: "Alfajor marplatense extra relleno", cat: "costa", badge: "Aldea", code: "ALD" },
+  { id: "la-aldea-ddl", name: "LA ALDEA DDL EXTREMO", desc: "70% de dulce de leche en peso", cat: "costa", badge: "Extremo", code: "ADL" },
+  { id: "entre-dos-whisky", name: "ENTRE DOS WHISKY", desc: "Mendoza: dulce de leche con toque de whisky", cat: "regional", badge: "Mendoza", code: "EDW" },
+  { id: "entre-dos-ron", name: "ENTRE DOS RON", desc: "Mendoza: chocolate negro y ron dulce", cat: "regional", badge: "Mendoza", code: "EDR" },
+  { id: "cerro-azul", name: "CERRO AZUL", desc: "Campeón del Mundial del Alfajor", cat: "artesanal", badge: "Campeón", code: "CAZ" },
+  { id: "nazareno", name: "NAZARENO CÓRDOBA", desc: "Tradicional alfajor cordobés hojaldrado", cat: "regional", badge: "Córdoba", code: "NAZ" },
+  { id: "la-quinta", name: "LA QUINTA", desc: "Carlos Paz: clásico cordobés de fruta", cat: "regional", badge: "Córdoba", code: "LQU" },
+  { id: "chammas", name: "CHAMMAS CÓRDOBA", desc: "El más antiguo de Argentina desde 1869", cat: "regional", badge: "1869", code: "CHA" },
+  { id: "estancia-rosario", name: "ESTANCIA EL ROSARIO", desc: "La Cumbre, Córdoba: receta serrana", cat: "regional", badge: "Serrano", code: "EER" },
+  { id: "marley", name: "MARLEY BAJONERO", desc: "Galleta artesanal con relleno súper generoso", cat: "artesanal", badge: "Bajón", code: "MAR" },
+  { id: "milka-triple-ddl", name: "MILKA TRIPLE DDL", desc: "Triple chocolate Milka y dulce de leche", cat: "kiosco", badge: "Triple", code: "MTD" },
+  { id: "oreo-triple", name: "OREO TRIPLE", desc: "Galletitas Oreo triples con dulce de leche", cat: "kiosco", badge: "Oreo", code: "OTR" },
+  { id: "cofler-extra", name: "COFLER EXTRA CHOCOLATE", desc: "Puro baño de repostería Cofler Arcor", cat: "kiosco", badge: "Cofler", code: "COF" },
+  { id: "terrabusi-triple", name: "TERRABUSI TRIPLE", desc: "El clásico kiosquero de triple capa", cat: "kiosco", badge: "Triple", code: "TTB" },
+  { id: "guolis", name: "GUOLIS CORAZÓN DDL", desc: "Mar del Plata: centro fluido de dulce de leche", cat: "costa", badge: "Guolis", code: "GUO" }
 ];
 
 // Persistent Voter ID for this device
 function getVoterId() {
-  let id = localStorage.getItem('mundial_voter_id_v3');
+  let id = localStorage.getItem('mundial_voter_id_v64');
   if (!id) {
     id = 'voter_' + Math.random().toString(36).substring(2, 10);
-    localStorage.setItem('mundial_voter_id_v3', id);
+    localStorage.setItem('mundial_voter_id_v64', id);
   }
   return id;
 }
@@ -51,14 +83,14 @@ let socket = null;
 let networkInfo = { ip: 'localhost', port: 3000, url: window.location.origin, qr: '' };
 let connectedCount = 1;
 
-let ALFAJORES_DATA = [...DEFAULT_ALFAJORES_32];
+let ALFAJORES_DATA = [...DEFAULT_ALFAJORES_64];
 let bracketState = {};
 let activeMatch = null; // { matchKey, slotA, slotB, label }
 let votes = {}; // { [matchKey]: { [slotId]: [voterIds...] } }
 
 let progressionMap = {};
 let initialSlotsList = [];
-let zoomLevel = 1.0;
+let zoomLevel = 0.85;
 let selectedAlfajorForPlacement = null;
 let currentDragPayload = null;
 
@@ -71,14 +103,6 @@ function showToast(msg) {
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 2800);
 }
-
-// Fallback image handler
-window.handleImageError = function (imgEl, codeText) {
-  const fallback = document.createElement('div');
-  fallback.className = imgEl.classList.contains('slot-thumb') ? 'slot-thumb-fallback' : 'alfajor-img-fallback';
-  fallback.textContent = codeText || 'ALF';
-  imgEl.parentNode.replaceChild(fallback, imgEl);
-};
 
 // ============================================================
 // WEBSOCKET & STATE SYNC
@@ -134,20 +158,17 @@ function updateConnectionBadge(connected) {
   if (connected) {
     pill.className = 'connection-pill live';
     pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (${connectedCount} disp.)</span>`;
-    pill.title = 'Sincronizado en tiempo real con la oficina';
+    pill.title = 'Sincronizado en tiempo real por WebSocket';
   } else {
     pill.className = 'connection-pill';
     pill.innerHTML = `<span>🟡</span> <span>MODO LOCAL</span>`;
-    pill.title = 'Servidor desconectado. Los cambios se guardan localmente.';
+    pill.title = 'Guardado en la memoria de este navegador';
   }
 }
 
 function handleIncomingState(state, net, count) {
+  if (count !== undefined) connectedCount = count;
   if (net) networkInfo = net;
-  if (count !== undefined) {
-    connectedCount = count;
-    updateConnectionBadge(isServerConnected);
-  }
 
   if (state) {
     if (Array.isArray(state.alfajores) && state.alfajores.length > 0) {
@@ -157,72 +178,72 @@ function handleIncomingState(state, net, count) {
     activeMatch = state.activeMatch || null;
     votes = state.votes || {};
 
-    renderSidebar();
-    renderActiveDuelPanel();
-    updateAllSlotsDOM();
+    saveToLocalStorage();
+    refreshAllViews();
   }
 }
 
+function sendServerAction(url, payload) {
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {
+    // If offline or on static Vercel, state already preserved in localStorage
+  });
+}
+
+// ============================================================
+// LOCAL STORAGE PERSISTENCE FALLBACK
+// ============================================================
 function saveToLocalStorage() {
   try {
-    localStorage.setItem('mundial_bracket_state_32', JSON.stringify(bracketState));
-    localStorage.setItem('mundial_alfajores_32', JSON.stringify(ALFAJORES_DATA));
-    localStorage.setItem('mundial_active_match_32', JSON.stringify(activeMatch));
-    localStorage.setItem('mundial_votes_32', JSON.stringify(votes));
-  } catch (e) {}
+    localStorage.setItem('mundial_bracket_state_64', JSON.stringify(bracketState));
+    localStorage.setItem('mundial_alfajores_64', JSON.stringify(ALFAJORES_DATA));
+    localStorage.setItem('mundial_active_match_64', JSON.stringify(activeMatch));
+    localStorage.setItem('mundial_votes_64', JSON.stringify(votes));
+  } catch (e) {
+    console.warn('LocalStorage save error', e);
+  }
 }
 
 function loadFromLocalStorage() {
   try {
-    const defaultMap = new Map(DEFAULT_ALFAJORES_32.map(a => [a.id, a]));
-    const savedAlf = localStorage.getItem('mundial_alfajores_32');
+    const defaultMap = new Map(DEFAULT_ALFAJORES_64.map(a => [a.id, a]));
+    const savedAlf = localStorage.getItem('mundial_alfajores_64');
     if (savedAlf) {
-      ALFAJORES_DATA = JSON.parse(savedAlf).map(alf => {
-        if (defaultMap.has(alf.id)) return { ...alf, img: defaultMap.get(alf.id).img };
-        return alf;
-      });
+      const parsed = JSON.parse(savedAlf);
+      if (Array.isArray(parsed) && parsed.length >= 32) {
+        const customOnes = parsed.filter(a => a.id.startsWith('custom-'));
+        ALFAJORES_DATA = [...DEFAULT_ALFAJORES_64, ...customOnes];
+      }
     }
 
-    const savedBracket = localStorage.getItem('mundial_bracket_state_32');
+    const savedBracket = localStorage.getItem('mundial_bracket_state_64');
     if (savedBracket) bracketState = JSON.parse(savedBracket);
 
-    const savedActive = localStorage.getItem('mundial_active_match_32');
+    const savedActive = localStorage.getItem('mundial_active_match_64');
     if (savedActive) activeMatch = JSON.parse(savedActive);
 
-    const savedVotes = localStorage.getItem('mundial_votes_32');
+    const savedVotes = localStorage.getItem('mundial_votes_64');
     if (savedVotes) votes = JSON.parse(savedVotes);
-
-    renderSidebar();
-    renderActiveDuelPanel();
-    updateAllSlotsDOM();
-  } catch (e) {}
-}
-
-function sendServerAction(url, body) {
-  if (isServerConnected) {
-    fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    }).catch(err => console.error(err));
-  } else {
-    saveToLocalStorage();
-    renderActiveDuelPanel();
-    updateAllSlotsDOM();
+  } catch (e) {
+    console.warn('LocalStorage load error', e);
   }
 }
 
 // ============================================================
-// PARTIDO DE HOY (ACTIVE DUEL PANEL)
+// ACTIVE DUEL / "PARTIDO DE HOY"
 // ============================================================
-function renderActiveDuelPanel() {
+function renderActiveDuelBanner() {
   const panel = document.getElementById('active-duel-panel');
   if (!panel) return;
 
   if (!activeMatch) {
     panel.innerHTML = `
       <div class="duel-banner-empty">
-        <span>⚔️ <strong>Partido de Hoy:</strong> Tocá el botón <strong>"⚔️ Jugar hoy"</strong> en cualquier cruce de la llave para abrir el duelo y empezar a votar.</span>
+        <span>⚔️ <strong>Partido de hoy:</strong> Ningún duelo seleccionado aún.</span>
+        <span style="font-size: 11.5px; color: #64748b;">Hacé clic en <strong>⚔️ Jugar hoy</strong> en cualquier partido de la llave.</span>
       </div>
     `;
     return;
@@ -232,65 +253,79 @@ function renderActiveDuelPanel() {
   const alfA = bracketState[slotA];
   const alfB = bracketState[slotB];
 
+  if (!alfA && !alfB) {
+    panel.innerHTML = `
+      <div class="duel-banner-empty">
+        <span>⚔️ Partido seleccionado (${escapeHtml(label)}): Aún faltan participantes en este duelo.</span>
+        <button class="btn-close-duel" onclick="closeActiveDuel()">Cerrar</button>
+      </div>
+    `;
+    return;
+  }
+
   const matchVotes = votes[matchKey] || {};
-  const votesA = (matchVotes[slotA] || []).length;
-  const votesB = (matchVotes[slotB] || []).length;
+  const votersA = matchVotes[slotA] || [];
+  const votersB = matchVotes[slotB] || [];
+  const votesA = votersA.length;
+  const votesB = votersB.length;
   const totalVotes = votesA + votesB;
 
   const pctA = totalVotes > 0 ? Math.round((votesA / totalVotes) * 100) : 50;
   const pctB = totalVotes > 0 ? (100 - pctA) : 50;
 
-  const myVote = (matchVotes[slotA] || []).includes(myVoterId) ? slotA :
-                 ((matchVotes[slotB] || []).includes(myVoterId) ? slotB : null);
+  const isVotedA = votersA.includes(myVoterId);
+  const isVotedB = votersB.includes(myVoterId);
 
   panel.innerHTML = `
     <div class="duel-banner-active">
       <div class="duel-header-line">
-        <span class="duel-title">🔥 DUELO EN VIVO: ${escapeHtml(label || 'Partido')} (${totalVotes} ${totalVotes === 1 ? 'voto' : 'votos'})</span>
-        <button class="btn-close-duel" onclick="closeActiveMatch()">✕ Cerrar Duelo</button>
+        <div class="duel-title-tag">
+          <span>⚔️</span> <span>PARTIDO EN DISPUTA: ${escapeHtml(label)}</span>
+        </div>
+        <button class="btn-close-duel" onclick="closeActiveDuel()" title="Ocultar duelo">Cerrar</button>
       </div>
 
       <div class="duel-combatants-row">
-        <!-- Combatant A -->
-        <div class="duel-card ${myVote === slotA ? 'is-voted' : ''}">
-          ${alfA ? `
-            <img class="duel-img" src="${escapeHtml(alfA.img || 'images/alfajor-default.webp')}" alt="${escapeHtml(alfA.name)}" 
-                 onerror="handleImageError(this, '${escapeHtml(alfA.code || 'ALF')}')" />
-            <div class="duel-info">
-              <div class="duel-name">${escapeHtml(alfA.name)}</div>
-              <span class="duel-badge">${escapeHtml(alfA.badge || 'Alfajor')}</span>
-              <button class="btn-duel-vote ${myVote === slotA ? 'voted' : ''}" onclick="submitDuelVote('${matchKey}', '${slotA}')">
-                ${myVote === slotA ? '✓ Tu voto' : '❤️ Votar'} (${votesA} - ${pctA}%)
-              </button>
+        <!-- Contender A -->
+        <div class="duel-card ${isVotedA ? 'is-voted' : ''}">
+          <div class="duel-code-circle">${alfA ? escapeHtml(alfA.code || alfA.name.slice(0, 3)) : '?'}</div>
+          <div class="duel-info">
+            <div class="duel-name">${alfA ? escapeHtml(alfA.name) : 'Esperando rival...'}</div>
+            ${alfA ? `<span class="duel-badge">${escapeHtml(alfA.badge || 'Alfajor')}</span>` : ''}
+            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;">
+              ${votesA} votos (${pctA}%)
             </div>
-          ` : `
-            <div style="color: #94a3b8; font-style: italic; font-size: 13px;">Casillero A vacío</div>
-          `}
+            ${alfA ? `
+              <button class="btn-duel-vote ${isVotedA ? 'voted' : ''}" onclick="submitVote('${matchKey}', '${slotA}')">
+                ${isVotedA ? '✓ Tu voto' : '🗳️ Votar'}
+              </button>
+            ` : ''}
+          </div>
         </div>
 
         <!-- Middle Controls -->
         <div class="duel-middle">
           <div class="vs-circle">VS</div>
-          <button class="btn-finish-duel" onclick="finishCurrentMatch('${matchKey}', '${slotA}', '${slotB}')">
-            🏁 Terminar y Pasar Ganador
+          <button class="btn-finish-duel" onclick="finishActiveMatchPrompt()" title="Cerrar votación y avanzar automáticamente al más votado a la siguiente ronda">
+            🏁 Definir Ganador
           </button>
         </div>
 
-        <!-- Combatant B -->
-        <div class="duel-card ${myVote === slotB ? 'is-voted' : ''}">
-          ${alfB ? `
-            <img class="duel-img" src="${escapeHtml(alfB.img || 'images/alfajor-default.webp')}" alt="${escapeHtml(alfB.name)}" 
-                 onerror="handleImageError(this, '${escapeHtml(alfB.code || 'ALF')}')" />
-            <div class="duel-info">
-              <div class="duel-name">${escapeHtml(alfB.name)}</div>
-              <span class="duel-badge">${escapeHtml(alfB.badge || 'Alfajor')}</span>
-              <button class="btn-duel-vote ${myVote === slotB ? 'voted' : ''}" onclick="submitDuelVote('${matchKey}', '${slotB}')">
-                ${myVote === slotB ? '✓ Tu voto' : '❤️ Votar'} (${votesB} - ${pctB}%)
-              </button>
+        <!-- Contender B -->
+        <div class="duel-card ${isVotedB ? 'is-voted' : ''}">
+          <div class="duel-code-circle">${alfB ? escapeHtml(alfB.code || alfB.name.slice(0, 3)) : '?'}</div>
+          <div class="duel-info">
+            <div class="duel-name">${alfB ? escapeHtml(alfB.name) : 'Esperando rival...'}</div>
+            ${alfB ? `<span class="duel-badge">${escapeHtml(alfB.badge || 'Alfajor')}</span>` : ''}
+            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;">
+              ${votesB} votos (${pctB}%)
             </div>
-          ` : `
-            <div style="color: #94a3b8; font-style: italic; font-size: 13px;">Casillero B vacío</div>
-          `}
+            ${alfB ? `
+              <button class="btn-duel-vote ${isVotedB ? 'voted' : ''}" onclick="submitVote('${matchKey}', '${slotB}')">
+                ${isVotedB ? '✓ Tu voto' : '🗳️ Votar'}
+              </button>
+            ` : ''}
+          </div>
         </div>
       </div>
     </div>
@@ -298,132 +333,120 @@ function renderActiveDuelPanel() {
 }
 
 window.selectMatchForToday = function (matchKey, slotA, slotB, label) {
-  const alfA = bracketState[slotA];
-  const alfB = bracketState[slotB];
-
-  if (!alfA || !alfB) {
-    showToast('⚠️ Primero ubicá a los dos alfajores en este cruce para jugar el partido');
-    return;
-  }
-
   activeMatch = { matchKey, slotA, slotB, label };
   if (!votes[matchKey]) votes[matchKey] = {};
 
-  if (isServerConnected) {
-    sendServerAction('/api/active-match', activeMatch);
-  } else {
-    saveToLocalStorage();
-  }
-
-  renderActiveDuelPanel();
-  highlightActiveMatchInBracket();
-  showToast(`⚔️ ¡Partido seleccionado! Ya podés votar.`);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveToLocalStorage();
+  sendServerAction('/api/active-match', activeMatch);
+  refreshAllViews();
+  showToast(`⚔️ Seleccionado: ${label}`);
 };
 
-window.closeActiveMatch = function () {
+window.closeActiveDuel = function () {
   activeMatch = null;
-  if (isServerConnected) {
-    sendServerAction('/api/active-match', {});
-  } else {
-    saveToLocalStorage();
-  }
-  renderActiveDuelPanel();
+  saveToLocalStorage();
+  sendServerAction('/api/active-match', { matchKey: null });
+  renderActiveDuelBanner();
   highlightActiveMatchInBracket();
 };
 
-window.submitDuelVote = function (matchKey, slotChosen) {
-  if (!bracketState[slotChosen]) return;
+window.submitVote = function (matchKey, slotChosen) {
+  if (!votes[matchKey]) votes[matchKey] = {};
+  const matchVotes = votes[matchKey];
 
-  if (isServerConnected) {
-    sendServerAction('/api/vote', { matchKey, slotChosen, voterId: myVoterId });
-  } else {
-    if (!votes[matchKey]) votes[matchKey] = {};
-    Object.keys(votes[matchKey]).forEach(s => {
-      votes[matchKey][s] = (votes[matchKey][s] || []).filter(id => id !== myVoterId);
-    });
-    if (!votes[matchKey][slotChosen]) votes[matchKey][slotChosen] = [];
-    votes[matchKey][slotChosen].push(myVoterId);
-    saveToLocalStorage();
-    renderActiveDuelPanel();
-  }
-  showToast('🗳️ ¡Voto registrado en vivo!');
-};
-
-window.finishCurrentMatch = function (matchKey, slotA, slotB) {
-  const alfA = bracketState[slotA];
-  const alfB = bracketState[slotB];
-  if (!alfA || !alfB) return;
-
-  const matchVotes = votes[matchKey] || {};
-  const votesA = (matchVotes[slotA] || []).length;
-  const votesB = (matchVotes[slotB] || []).length;
-
-  let winnerSlot = null;
-  if (votesA > votesB) {
-    winnerSlot = slotA;
-  } else if (votesB > votesA) {
-    winnerSlot = slotB;
-  } else {
-    // Tie
-    const choice = confirm(`¡Empate (${votesA} a ${votesB})!\n\n¿Aceptás como ganador a "${alfA.name}"?\n(Si cancelás, gana "${alfB.name}")`);
-    winnerSlot = choice ? slotA : slotB;
-  }
-
-  const winningAlfajor = bracketState[winnerSlot];
-  const nextSlot = progressionMap[winnerSlot];
-
-  if (nextSlot) {
-    bracketState[nextSlot] = winningAlfajor;
-    updateSlotDOM(nextSlot);
-  }
-
-  if (isServerConnected) {
-    sendServerAction('/api/finish-match', { matchKey, winnerSlot });
-  } else {
-    activeMatch = null;
-    saveToLocalStorage();
-    renderActiveDuelPanel();
-    highlightActiveMatchInBracket();
-  }
-
-  triggerConfetti();
-  showToast(`🎉 ¡Ganó ${winningAlfajor.name} y avanzó en la llave! 🏆`);
-};
-
-function highlightActiveMatchInBracket() {
-  document.querySelectorAll('.matchup').forEach(m => {
-    if (activeMatch && m.dataset.matchKey === activeMatch.matchKey) {
-      m.classList.add('active-in-duel');
-    } else {
-      m.classList.remove('active-in-duel');
+  Object.keys(matchVotes).forEach(slot => {
+    if (Array.isArray(matchVotes[slot])) {
+      matchVotes[slot] = matchVotes[slot].filter(id => id !== myVoterId);
     }
   });
+
+  if (!matchVotes[slotChosen]) matchVotes[slotChosen] = [];
+  matchVotes[slotChosen].push(myVoterId);
+
+  saveToLocalStorage();
+  sendServerAction('/api/vote', { matchKey, slotChosen, voterId: myVoterId });
+  renderActiveDuelBanner();
+  showToast('🗳️ ¡Voto registrado!');
+};
+
+window.finishActiveMatchPrompt = function () {
+  if (!activeMatch) return;
+  const { matchKey, slotA, slotB } = activeMatch;
+  const alfA = bracketState[slotA];
+  const alfB = bracketState[slotB];
+
+  if (!alfA && !alfB) {
+    showToast('⚠️ No hay alfajores en este partido');
+    return;
+  }
+  if (!alfA || !alfB) {
+    const single = alfA ? slotA : slotB;
+    finishMatchWithWinner(matchKey, single);
+    return;
+  }
+
+  const matchVotes = votes[matchKey] || {};
+  const countA = (matchVotes[slotA] || []).length;
+  const countB = (matchVotes[slotB] || []).length;
+
+  let winnerSlot = slotA;
+  if (countB > countA) winnerSlot = slotB;
+  else if (countA === countB) {
+    const confirmA = confirm(`Empate (${countA} a ${countB}). ¿Gana "${alfA.name}"? (Aceptar = Sí, Cancelar = Gana "${alfB.name}")`);
+    winnerSlot = confirmA ? slotA : slotB;
+  }
+
+  finishMatchWithWinner(matchKey, winnerSlot);
+};
+
+function finishMatchWithWinner(matchKey, winnerSlot) {
+  const winnerAlfajor = bracketState[winnerSlot];
+  if (!winnerAlfajor) return;
+
+  const nextSlot = progressionMap[winnerSlot];
+  if (nextSlot) {
+    bracketState[nextSlot] = winnerAlfajor;
+  }
+
+  activeMatch = null;
+
+  saveToLocalStorage();
+  sendServerAction('/api/finish-match', { matchKey, winnerSlot });
+  refreshAllViews();
+
+  if (nextSlot === 'CHAMPION') {
+    triggerConfetti();
+    showToast(`🏆 ¡${winnerAlfajor.name} ES EL GRAN CAMPEÓN DEL MUNDIAL! 🏆`);
+  } else {
+    showToast(`🎉 ¡Ganó ${winnerAlfajor.name} y avanzó a la siguiente ronda!`);
+  }
 }
 
 // ============================================================
-// BRACKET GENERATION (32 TEAMS)
+// BRACKET GENERATION (64 TEAMS / 32AVOS)
 // ============================================================
-function build32Bracket() {
+function build64Bracket() {
   const stageEl = document.getElementById('bracket-stage');
   if (!stageEl) return;
   stageEl.innerHTML = '';
   initialSlotsList = [];
   progressionMap = {};
 
-  // Rounds for 32:
-  // 16avos: 8 matches per side
-  // Octavos: 4 matches per side
-  // Cuartos: 2 matches per side
-  // Semifinales: 1 match per side
+  // Rounds for 64 tournament (starting at 32avos):
+  // 32avos: 16 matches per side (32 slots)
+  // 16avos: 8 matches per side (16 slots)
+  // Octavos: 4 matches per side (8 slots)
+  // Cuartos: 2 matches per side (4 slots)
+  // Semifinales: 1 match per side (2 slots)
   const roundsConfig = [
-    { name: '16avos', matches: 8, isInitial: true },
+    { name: '32avos', matches: 16, isInitial: true },
+    { name: '16avos', matches: 8, isInitial: false },
     { name: 'Octavos', matches: 4, isInitial: false },
     { name: 'Cuartos', matches: 2, isInitial: false },
     { name: 'Semifinal', matches: 1, isInitial: false }
   ];
 
-  const colHeight = 8 * 145;
+  const colHeight = 16 * 105;
 
   // Render Left Half
   const leftHalf = document.createElement('div');
@@ -472,7 +495,7 @@ function build32Bracket() {
         <div class="bracket-slot" data-slot-id="${slotAId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}A</span>
         </div>
-        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Izq) - Duelo ${m + 1}')" title="Seleccionar este partido para jugar y votar hoy">
+        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Izq) - Duelo ${m + 1}')" title="Seleccionar para votar hoy">
           ⚔️ Jugar hoy
         </button>
         <div class="bracket-slot" data-slot-id="${slotBId}">
@@ -498,26 +521,27 @@ function build32Bracket() {
   progressionMap['FINAL_R'] = 'CHAMPION';
 
   centerDiv.innerHTML = `
+    <!-- Champion Box -->
     <div class="champion-box">
       <div class="trophy-badge">🏆</div>
-      <div class="champion-label">★ CAMPEÓN DEL MUNDIAL ★</div>
+      <div class="champion-label">CAMPEÓN DEL MUNDIAL</div>
       <div class="bracket-slot champion-slot" data-slot-id="CHAMPION">
-        <span class="slot-placeholder">Ganador de la Final</span>
+        <span class="slot-placeholder">👑 Gran Campeón</span>
       </div>
     </div>
 
-    <div class="final-box" data-match-key="FINAL">
+    <!-- Final Box -->
+    <div class="final-box">
       <div class="round-title" style="width: 100%; margin-bottom: 4px;">GRAN FINAL</div>
       <div class="bracket-slot" data-slot-id="FINAL_L">
-        <span class="slot-placeholder">Finalista Izquierda</span>
+        <span class="slot-placeholder">Ganador Semifinal Izq</span>
       </div>
-
-      <button class="btn-select-match" onclick="selectMatchForToday('FINAL', 'FINAL_L', 'FINAL_R', '★ LA GRAN FINAL ★')" style="padding: 4px; font-size: 11px;">
+      <button class="btn-select-match" onclick="selectMatchForToday('FINAL_MATCH', 'FINAL_L', 'FINAL_R', 'GRAN FINAL DEL MUNDIAL')" title="Seleccionar la Gran Final">
         ⚔️ Jugar Gran Final
       </button>
-
+      <div class="vs-tag-bracket">VS</div>
       <div class="bracket-slot" data-slot-id="FINAL_R">
-        <span class="slot-placeholder">Finalista Derecha</span>
+        <span class="slot-placeholder">Ganador Semifinal Der</span>
       </div>
     </div>
   `;
@@ -555,6 +579,7 @@ function build32Bracket() {
         initialSlotsList.push(slotBId);
       }
 
+      // Progression calculation
       if (rIdx < roundsConfig.length - 1) {
         const nextMatch = Math.floor(m / 2);
         const nextLetter = (m % 2 === 0) ? 'A' : 'B';
@@ -570,7 +595,7 @@ function build32Bracket() {
         <div class="bracket-slot" data-slot-id="${slotAId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}A</span>
         </div>
-        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Der) - Duelo ${m + 1}')" title="Seleccionar este partido para jugar y votar hoy">
+        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Der) - Duelo ${m + 1}')" title="Seleccionar para votar hoy">
           ⚔️ Jugar hoy
         </button>
         <div class="bracket-slot" data-slot-id="${slotBId}">
@@ -587,132 +612,14 @@ function build32Bracket() {
 
   stageEl.appendChild(rightHalf);
 
-  setupSlotListeners();
-  updateAllSlotsDOM();
+  attachSlotListeners();
 }
 
-function updateSlotDOM(slotId) {
-  const slotEl = document.querySelector(`.bracket-slot[data-slot-id="${slotId}"]`);
-  if (!slotEl) return;
-
-  const alfajor = bracketState[slotId];
-
-  if (alfajor) {
-    slotEl.classList.add('filled');
-    const nextSlot = progressionMap[slotId];
-    const canAdvance = !!nextSlot;
-    const fallbackCode = alfajor.code || alfajor.name.substring(0, 3).toUpperCase();
-
-    slotEl.innerHTML = `
-      <div class="slot-content" draggable="true" data-slot-id="${slotId}">
-        <img class="slot-thumb" src="${escapeHtml(alfajor.img || 'images/alfajor-default.webp')}" alt="${escapeHtml(alfajor.name)}" 
-             onerror="handleImageError(this, '${escapeHtml(fallbackCode)}')" />
-        <div class="slot-title-box">
-          <div class="slot-name">${escapeHtml(alfajor.name)}</div>
-          <div class="slot-sub">${escapeHtml(alfajor.badge || '')}</div>
-        </div>
-        <div class="slot-controls">
-          ${canAdvance ? `<button class="btn-action btn-advance" title="Avanzar 1 ronda" onclick="advanceSlot('${slotId}', event)">➔</button>` : ''}
-          <button class="btn-action" title="Quitar de casilla" onclick="clearSlot('${slotId}', event)">✕</button>
-        </div>
-      </div>
-    `;
-
-    const contentEl = slotEl.querySelector('.slot-content');
-    contentEl.addEventListener('dragstart', (e) => {
-      currentDragPayload = { source: 'slot', sourceSlotId: slotId, alfajor: alfajor };
-      e.dataTransfer.setData('application/json', JSON.stringify(alfajor));
-    });
-
-    contentEl.addEventListener('dragend', () => {
-      currentDragPayload = null;
-    });
-
-  } else {
-    slotEl.classList.remove('filled');
-    const placeholders = {
-      'CHAMPION': '🏆 Gran Campeón',
-      'FINAL_L': 'Finalista Izquierda',
-      'FINAL_R': 'Finalista Derecha'
-    };
-    const placeholder = placeholders[slotId] || 'Casilla vacía';
-    slotEl.innerHTML = `<span class="slot-placeholder">${placeholder}</span>`;
-  }
-}
-
-function updateAllSlotsDOM() {
+function attachSlotListeners() {
   document.querySelectorAll('.bracket-slot').forEach(slot => {
-    updateSlotDOM(slot.dataset.slotId);
-  });
-  highlightActiveMatchInBracket();
-}
-
-window.advanceSlot = function (slotId, e) {
-  if (e) e.stopPropagation();
-  const current = bracketState[slotId];
-  if (!current) return;
-
-  const nextSlot = progressionMap[slotId];
-  if (!nextSlot) {
-    showToast(`🏆 ¡${current.name} ya es el Campeón del Mundial!`);
-    return;
-  }
-
-  bracketState[nextSlot] = current;
-  updateSlotDOM(nextSlot);
-
-  if (isServerConnected) {
-    sendServerAction('/api/bracket/advance', { slotId });
-  } else {
-    saveToLocalStorage();
-  }
-
-  if (nextSlot === 'CHAMPION') {
-    showToast(`🎉 ¡${current.name} ES EL CAMPEÓN DEL MUNDIAL! 🏆`);
-    triggerConfetti();
-  } else {
-    showToast(`¡${current.name} avanzó a la siguiente ronda!`);
-  }
-};
-
-window.clearSlot = function (slotId, e) {
-  if (e) e.stopPropagation();
-  delete bracketState[slotId];
-  updateSlotDOM(slotId);
-
-  if (isServerConnected) {
-    sendServerAction('/api/bracket/slot', { slotId, alfajor: null });
-  } else {
-    saveToLocalStorage();
-  }
-
-  renderSidebar();
-  renderActiveDuelPanel();
-};
-
-function setupSlotListeners() {
-  const allSlots = document.querySelectorAll('.bracket-slot');
-  allSlots.forEach(slot => {
-    const slotId = slot.dataset.slotId;
-
-    // Click slot to place selected alfajor
-    slot.addEventListener('click', () => {
-      if (selectedAlfajorForPlacement) {
-        bracketState[slotId] = selectedAlfajorForPlacement;
-        updateSlotDOM(slotId);
-
-        if (isServerConnected) {
-          sendServerAction('/api/bracket/slot', { slotId, alfajor: selectedAlfajorForPlacement });
-        } else {
-          saveToLocalStorage();
-        }
-
-        showToast(`Ubicado: ${selectedAlfajorForPlacement.name}`);
-        selectedAlfajorForPlacement = null;
-        highlightAwaitingSlots(false);
-        renderSidebar();
-        renderActiveDuelPanel();
-      }
+    slot.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-action')) return;
+      handleSlotClick(slot);
     });
 
     slot.addEventListener('dragover', (e) => {
@@ -721,151 +628,236 @@ function setupSlotListeners() {
     });
 
     slot.addEventListener('dragleave', () => {
-      if (!selectedAlfajorForPlacement) slot.classList.remove('awaiting-placement');
+      slot.classList.remove('awaiting-placement');
     });
 
     slot.addEventListener('drop', (e) => {
       e.preventDefault();
       slot.classList.remove('awaiting-placement');
-
-      let alfajor = currentDragPayload ? currentDragPayload.alfajor : null;
-      if (!alfajor) {
-        try {
-          const raw = e.dataTransfer.getData('application/json');
-          alfajor = JSON.parse(raw);
-        } catch (err) {}
-      }
-
-      if (!alfajor) return;
-
-      bracketState[slotId] = alfajor;
-      updateSlotDOM(slotId);
-
-      if (isServerConnected) {
-        sendServerAction('/api/bracket/slot', { slotId, alfajor });
-      } else {
-        saveToLocalStorage();
-      }
-
-      renderSidebar();
-      renderActiveDuelPanel();
-      showToast(`Ubicado: ${alfajor.name}`);
+      handleSlotDrop(slot);
     });
   });
 }
 
-function highlightAwaitingSlots(active) {
-  document.querySelectorAll('.bracket-slot').forEach(slot => {
-    if (active) slot.classList.add('awaiting-placement');
-    else slot.classList.remove('awaiting-placement');
-  });
+function handleSlotClick(slotEl) {
+  const slotId = slotEl.dataset.slotId;
+  if (!slotId) return;
 
-  const hint = document.getElementById('selection-hint');
-  if (hint) {
-    if (active && selectedAlfajorForPlacement) {
-      hint.textContent = `👉 Ubicando "${selectedAlfajorForPlacement.name}": hacé click en un casillero de la llave`;
-      hint.classList.add('active');
-    } else {
-      hint.classList.remove('active');
-    }
+  if (selectedAlfajorForPlacement) {
+    placeAlfajorInSlot(slotId, selectedAlfajorForPlacement);
+    clearPlacementSelection();
+    return;
   }
 }
 
-// ============================================================
-// SIDEBAR (ALFAJORES LIST WITH LUPA)
-// ============================================================
-function renderSidebar() {
-  const listEl = document.getElementById('alfajores-list');
-  if (!listEl) return;
+function handleSlotDrop(slotEl) {
+  const slotId = slotEl.dataset.slotId;
+  if (!slotId || !currentDragPayload) return;
+  placeAlfajorInSlot(slotId, currentDragPayload);
+  currentDragPayload = null;
+}
 
-  const searchInput = document.getElementById('search-input');
-  const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+function placeAlfajorInSlot(slotId, alfajor) {
+  bracketState[slotId] = alfajor;
+  saveToLocalStorage();
+  sendServerAction('/api/bracket/slot', { slotId, alfajor });
+  refreshAllViews();
+  showToast(`✅ ${alfajor.name} colocado en la llave`);
+}
 
-  listEl.innerHTML = '';
+function removeAlfajorFromSlot(slotId) {
+  delete bracketState[slotId];
+  saveToLocalStorage();
+  sendServerAction('/api/bracket/slot', { slotId, alfajor: null });
+  refreshAllViews();
+}
 
-  const filtered = ALFAJORES_DATA.filter(alf => {
-    return !searchVal || alf.name.toLowerCase().includes(searchVal) || alf.desc.toLowerCase().includes(searchVal);
+function advanceSlot(slotId) {
+  const current = bracketState[slotId];
+  if (!current) return;
+
+  const nextSlot = progressionMap[slotId];
+  if (!nextSlot) return;
+
+  bracketState[nextSlot] = current;
+  saveToLocalStorage();
+  sendServerAction('/api/bracket/advance', { slotId });
+  refreshAllViews();
+
+  if (nextSlot === 'CHAMPION') {
+    triggerConfetti();
+    showToast(`🏆 ¡${current.name} ES EL GRAN CAMPEÓN! 🏆`);
+  } else {
+    showToast(`➔ ${current.name} avanzó a la siguiente ronda`);
+  }
+}
+
+function renderBracketSlots() {
+  document.querySelectorAll('.bracket-slot').forEach(slot => {
+    const slotId = slot.dataset.slotId;
+    const alfajor = bracketState[slotId];
+
+    if (alfajor) {
+      slot.classList.add('filled');
+      slot.innerHTML = `
+        <div class="slot-content" draggable="true" ondragstart="handleSlotDragStart(event, '${slotId}')">
+          <div class="slot-code-pill">${escapeHtml(alfajor.code || alfajor.name.slice(0, 3))}</div>
+          <div class="slot-title-box">
+            <div class="slot-name" title="${escapeHtml(alfajor.name)}">${escapeHtml(alfajor.name)}</div>
+          </div>
+          <div class="slot-controls">
+            ${slotId !== 'CHAMPION' ? `
+              <button class="btn-action btn-advance" onclick="event.stopPropagation(); advanceSlot('${slotId}')" title="Avanzar de ronda">➔</button>
+            ` : ''}
+            <button class="btn-action" onclick="event.stopPropagation(); removeAlfajorFromSlot('${slotId}')" title="Quitar">✕</button>
+          </div>
+        </div>
+      `;
+    } else {
+      slot.classList.remove('filled');
+      const placeholder = getPlaceholderLabel(slotId);
+      slot.innerHTML = `<span class="slot-placeholder">${escapeHtml(placeholder)}</span>`;
+    }
   });
 
-  const countBadge = document.getElementById('count-badge');
-  if (countBadge) countBadge.textContent = filtered.length;
+  highlightActiveMatchInBracket();
+}
 
+function getPlaceholderLabel(slotId) {
+  if (slotId === 'CHAMPION') return '👑 Gran Campeón';
+  if (slotId === 'FINAL_L') return 'Ganador Semifinal Izq';
+  if (slotId === 'FINAL_R') return 'Ganador Semifinal Der';
+
+  const parts = slotId.split('_'); // ['L', 'R0', 'M0', 'A']
+  if (parts.length >= 4) {
+    const rIdx = parseInt(parts[1].replace('R', ''), 10);
+    const mIdx = parseInt(parts[2].replace('M', ''), 10) + 1;
+    const letter = parts[3];
+    const names = ['32avos', '16avos', 'Octavos', 'Cuartos', 'Semis'];
+    return `${names[rIdx] || 'Ronda'} ${mIdx}${letter}`;
+  }
+  return 'Vacío';
+}
+
+function highlightActiveMatchInBracket() {
+  document.querySelectorAll('.matchup').forEach(m => m.classList.remove('active-in-duel'));
+  if (!activeMatch) return;
+
+  const mEl = document.querySelector(`.matchup[data-match-key="${activeMatch.matchKey}"]`);
+  if (mEl) mEl.classList.add('active-in-duel');
+}
+
+// Drag from Slot
+window.handleSlotDragStart = function (e, slotId) {
+  const alf = bracketState[slotId];
+  if (!alf) return;
+  currentDragPayload = alf;
+  e.dataTransfer.setData('text/plain', JSON.stringify(alf));
+};
+
+// ============================================================
+// SIDEBAR CATALOG (SIN FOTOS, ULTRA RÁPIDO)
+// ============================================================
+function renderAlfajoresList() {
+  const listEl = document.getElementById('alfajores-list');
+  const countBadge = document.getElementById('count-badge');
+  const searchInput = document.getElementById('search-input');
+  if (!listEl) return;
+
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
   const usedIds = new Set(Object.values(bracketState).map(a => a?.id).filter(Boolean));
 
+  const filtered = ALFAJORES_DATA.filter(alf => {
+    return alf.name.toLowerCase().includes(query) ||
+      (alf.desc && alf.desc.toLowerCase().includes(query)) ||
+      (alf.badge && alf.badge.toLowerCase().includes(query));
+  });
+
+  if (countBadge) countBadge.textContent = ALFAJORES_DATA.length;
+  listEl.innerHTML = '';
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 12px;">No se encontraron alfajores</div>`;
+    return;
+  }
+
   filtered.forEach(alf => {
+    const isUsed = usedIds.has(alf.id);
+    const isSelected = selectedAlfajorForPlacement?.id === alf.id;
+
     const item = document.createElement('div');
-    item.className = 'alfajor-item';
-    if (usedIds.has(alf.id)) item.classList.add('used');
-    if (selectedAlfajorForPlacement && selectedAlfajorForPlacement.id === alf.id) {
-      item.classList.add('selected-for-place');
-    }
-
-    item.setAttribute('draggable', 'true');
-    const fallbackCode = alf.code || alf.name.substring(0, 3).toUpperCase();
-
-    item.innerHTML = `
-      <img class="alfajor-img-thumb" src="${escapeHtml(alf.img || 'images/alfajor-default.webp')}" alt="${escapeHtml(alf.name)}" 
-           onerror="handleImageError(this, '${escapeHtml(fallbackCode)}')" />
-      <div class="alfajor-info">
-        <div class="alfajor-name">${escapeHtml(alf.name)}</div>
-        <div class="alfajor-desc">${escapeHtml(alf.desc)}</div>
-      </div>
-      <span class="alfajor-badge">${escapeHtml(alf.badge)}</span>
-      <button class="btn-delete-alfajor" title="Quitar alfajor" onclick="deleteAlfajor('${escapeHtml(alf.id)}', event)">✕</button>
-    `;
-
-    // Click to select & mark on bracket
-    item.addEventListener('click', () => {
-      if (selectedAlfajorForPlacement && selectedAlfajorForPlacement.id === alf.id) {
-        selectedAlfajorForPlacement = null;
-        highlightAwaitingSlots(false);
-      } else {
-        selectedAlfajorForPlacement = alf;
-        highlightAwaitingSlots(true);
-        showToast(`"${alf.name}" seleccionado. Hacé click en cualquier casillero de la llave para ubicarlo.`);
-      }
-      renderSidebar();
-    });
+    item.className = `alfajor-item ${isUsed ? 'used' : ''} ${isSelected ? 'selected-for-place' : ''}`;
+    item.draggable = true;
 
     item.addEventListener('dragstart', (e) => {
-      currentDragPayload = { source: 'sidebar', alfajor: alf };
-      e.dataTransfer.setData('application/json', JSON.stringify(alf));
+      currentDragPayload = alf;
+      e.dataTransfer.setData('text/plain', JSON.stringify(alf));
     });
 
-    item.addEventListener('dragend', () => {
-      currentDragPayload = null;
+    item.addEventListener('click', () => {
+      if (selectedAlfajorForPlacement?.id === alf.id) {
+        clearPlacementSelection();
+      } else {
+        selectedAlfajorForPlacement = alf;
+        updateSelectionHint();
+        renderAlfajoresList();
+      }
     });
+
+    item.innerHTML = `
+      <div class="alfajor-code-badge">${escapeHtml(alf.code || alf.name.slice(0, 3))}</div>
+      <div class="alfajor-info">
+        <div class="alfajor-name">${escapeHtml(alf.name)}</div>
+        <div class="alfajor-desc">${escapeHtml(alf.desc || '')}</div>
+      </div>
+      <span class="alfajor-badge">${escapeHtml(alf.badge || 'Clásico')}</span>
+      ${alf.id.startsWith('custom-') ? `
+        <button class="btn-delete-alfajor" onclick="event.stopPropagation(); deleteCustomAlfajor('${alf.id}')" title="Eliminar">✕</button>
+      ` : ''}
+    `;
 
     listEl.appendChild(item);
   });
 }
 
-window.deleteAlfajor = function (id, e) {
-  if (e) e.stopPropagation();
-  const alf = ALFAJORES_DATA.find(a => a.id === id);
-  if (!confirm(`¿Quitar "${alf ? alf.name : 'este alfajor'}" de la lista?`)) return;
-
-  if (isServerConnected) {
-    sendServerAction('/api/alfajor/delete', { id });
+function updateSelectionHint() {
+  const hint = document.getElementById('selection-hint');
+  if (!hint) return;
+  if (selectedAlfajorForPlacement) {
+    hint.className = 'selection-hint active';
+    hint.innerHTML = `👉 Hacé clic en cualquier casillero vacío para ubicar a <strong>${escapeHtml(selectedAlfajorForPlacement.name)}</strong>. <a href="javascript:clearPlacementSelection()" style="color: #854d0e; margin-left: 6px;">(Cancelar)</a>`;
   } else {
-    ALFAJORES_DATA = ALFAJORES_DATA.filter(a => a.id !== id);
-    Object.keys(bracketState).forEach(slotId => {
-      if (bracketState[slotId]?.id === id) delete bracketState[slotId];
-    });
-    saveToLocalStorage();
-    renderSidebar();
-    updateAllSlotsDOM();
+    hint.className = 'selection-hint';
+    hint.innerHTML = '';
   }
+}
+
+window.clearPlacementSelection = function () {
+  selectedAlfajorForPlacement = null;
+  updateSelectionHint();
+  renderAlfajoresList();
+};
+
+window.deleteCustomAlfajor = function (id) {
+  if (!confirm('¿Eliminar este alfajor personalizado?')) return;
+  ALFAJORES_DATA = ALFAJORES_DATA.filter(a => a.id !== id);
+  Object.keys(bracketState).forEach(slotId => {
+    if (bracketState[slotId]?.id === id) delete bracketState[slotId];
+  });
+
+  saveToLocalStorage();
+  sendServerAction('/api/alfajor/delete', { id });
+  refreshAllViews();
 };
 
 // ============================================================
-// ZOOM & FIT
+// ZOOM & VIEWPORT
 // ============================================================
-function setZoom(newZoom) {
-  zoomLevel = Math.max(0.35, Math.min(1.8, newZoom));
+function setZoom(level) {
+  zoomLevel = Math.max(0.35, Math.min(1.8, level));
   const canvas = document.getElementById('bracket-canvas');
-  if (canvas) canvas.style.transform = `scale(${zoomLevel})`;
   const zoomText = document.getElementById('zoom-text');
+  if (canvas) canvas.style.transform = `scale(${zoomLevel})`;
   if (zoomText) zoomText.textContent = `${Math.round(zoomLevel * 100)}%`;
 }
 
@@ -875,50 +867,42 @@ function fitToScreen() {
   if (!viewport || !stage) return;
 
   const vpW = viewport.clientWidth - 40;
+  const vpH = viewport.clientHeight - 60;
   const stW = stage.scrollWidth;
+  const stH = stage.scrollHeight;
 
-  if (stW > 0) {
-    const scale = Math.min(vpW / stW, 1.0);
-    setZoom(scale);
-    viewport.scrollTop = 0;
-    viewport.scrollLeft = 0;
+  if (stW > 0 && stH > 0) {
+    const scale = Math.min(vpW / stW, vpH / stH, 1.0);
+    setZoom(Math.max(scale, 0.4));
   }
 }
 
 // ============================================================
-// QR MODAL
+// MODAL & QR
 // ============================================================
-function openQRModal() {
+window.openQRModal = function () {
   const modal = document.getElementById('qr-modal');
   if (!modal) return;
-
-  const qrImg = document.getElementById('qr-code-img');
-  const urlBox = document.getElementById('qr-url-text');
-  const accessUrl = networkInfo.url || `http://${networkInfo.ip || 'localhost'}:${networkInfo.port || 3000}`;
-
-  if (urlBox) urlBox.textContent = accessUrl;
-  if (qrImg && networkInfo.qr) qrImg.src = networkInfo.qr;
-
+  const qrBox = document.getElementById('qr-url-text');
+  if (qrBox) qrBox.textContent = networkInfo.url || window.location.href;
   modal.classList.add('active');
-}
+};
 
-function closeQRModal() {
+window.closeQRModal = function () {
   const modal = document.getElementById('qr-modal');
   if (modal) modal.classList.remove('active');
-}
+};
 
 window.copyOfficeLink = function () {
-  const url = networkInfo.url || `http://${networkInfo.ip || 'localhost'}:${networkInfo.port || 3000}`;
+  const url = networkInfo.url || window.location.href;
   navigator.clipboard.writeText(url).then(() => {
     showToast('📋 ¡Enlace copiado al portapapeles!');
   }).catch(() => {
-    showToast('Enlace: ' + url);
+    prompt('Copiá el enlace manualmente:', url);
   });
 };
 
-// ============================================================
-// CONFETTI
-// ============================================================
+// Confetti Effect
 function triggerConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   if (!canvas) return;
@@ -926,45 +910,48 @@ function triggerConfetti() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const particles = [];
-  const colors = ['#f59e0b', '#2563eb', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
-
-  for (let i = 0; i < 80; i++) {
-    particles.push({
-      x: canvas.width / 2,
-      y: canvas.height / 3,
-      vx: (Math.random() - 0.5) * 14,
-      vy: (Math.random() - 0.7) * 14,
-      size: Math.random() * 8 + 4,
+  const pieces = [];
+  const colors = ['#f59e0b', '#2563eb', '#16a34a', '#ec4899', '#8b5cf6', '#ef4444'];
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * -canvas.height,
+      w: Math.random() * 9 + 4,
+      h: Math.random() * 6 + 4,
       color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: 1,
-      decay: Math.random() * 0.02 + 0.015
+      vy: Math.random() * 4 + 2,
+      vx: (Math.random() - 0.5) * 3,
+      angle: Math.random() * 360,
+      vAngle: (Math.random() - 0.5) * 10
     });
   }
 
-  function frame() {
+  let frame = 0;
+  function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let alive = false;
-    particles.forEach(p => {
-      p.x += p.vx;
+    pieces.forEach(p => {
       p.y += p.vy;
-      p.vy += 0.3;
-      p.alpha -= p.decay;
-      if (p.alpha > 0) {
-        alive = true;
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.alpha;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-      }
+      p.x += p.vx;
+      p.angle += p.vAngle;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.angle * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
     });
 
-    if (alive) requestAnimationFrame(frame);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    if (frame < 180) {
+      requestAnimationFrame(update);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
   }
-
-  requestAnimationFrame(frame);
+  update();
 }
 
+// Helpers
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
@@ -972,20 +959,37 @@ function escapeHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replace(/'/g, '&#39;');
+}
+
+function refreshAllViews() {
+  renderAlfajoresList();
+  renderBracketSlots();
+  renderActiveDuelBanner();
 }
 
 // ============================================================
 // INITIALIZATION
 // ============================================================
-window.addEventListener('DOMContentLoaded', () => {
-  // Zoom Controls
-  const zIn = document.getElementById('btn-zoom-in');
-  if (zIn) zIn.addEventListener('click', () => setZoom(zoomLevel + 0.1));
-  const zOut = document.getElementById('btn-zoom-out');
-  if (zOut) zOut.addEventListener('click', () => setZoom(zoomLevel - 0.1));
-  const zReset = document.getElementById('btn-zoom-reset');
-  if (zReset) zReset.addEventListener('click', () => setZoom(1.0));
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromLocalStorage();
+  build64Bracket();
+  initWebSocket();
+
+  // Search input
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) searchInput.addEventListener('input', renderAlfajoresList);
+
+  // Zoom buttons
+  const btnZoomIn = document.getElementById('btn-zoom-in');
+  if (btnZoomIn) btnZoomIn.addEventListener('click', () => setZoom(zoomLevel + 0.1));
+
+  const btnZoomOut = document.getElementById('btn-zoom-out');
+  if (btnZoomOut) btnZoomOut.addEventListener('click', () => setZoom(zoomLevel - 0.1));
+
+  const btnZoomReset = document.getElementById('btn-zoom-reset');
+  if (btnZoomReset) btnZoomReset.addEventListener('click', () => setZoom(0.85));
+
   const fitBtn = document.getElementById('btn-fit-screen');
   if (fitBtn) fitBtn.addEventListener('click', fitToScreen);
 
@@ -1000,26 +1004,25 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Auto-fill all 32 slots
+  // Auto-fill all 64 slots of 32avos
   const btnFill = document.getElementById('btn-fill-all');
   if (btnFill) {
     btnFill.addEventListener('click', () => {
-      if (isServerConnected) {
-        sendServerAction('/api/bracket/fill-all', {});
-      } else {
-        const available = ALFAJORES_DATA.filter(a => !Object.values(bracketState).some(x => x?.id === a.id));
-        let availIdx = 0;
-        initialSlotsList.forEach(slotId => {
-          if (!bracketState[slotId] && available[availIdx]) {
-            bracketState[slotId] = available[availIdx];
-            availIdx++;
-          }
-        });
-        saveToLocalStorage();
-        updateAllSlotsDOM();
-        renderSidebar();
-      }
-      showToast('🎲 ¡Llave completada con los 32 alfajores!');
+      const usedIds = new Set(Object.values(bracketState).map(a => a?.id).filter(Boolean));
+      const available = ALFAJORES_DATA.filter(a => !usedIds.has(a.id));
+
+      let availIdx = 0;
+      initialSlotsList.forEach(slotId => {
+        if (!bracketState[slotId] && available[availIdx]) {
+          bracketState[slotId] = available[availIdx];
+          availIdx++;
+        }
+      });
+
+      saveToLocalStorage();
+      sendServerAction('/api/bracket/fill-all', {});
+      refreshAllViews();
+      showToast('🎲 ¡Llave completada con los 64 alfajores!');
     });
   }
 
@@ -1027,75 +1030,55 @@ window.addEventListener('DOMContentLoaded', () => {
   const btnClear = document.getElementById('btn-clear');
   if (btnClear) {
     btnClear.addEventListener('click', () => {
-      if (confirm('¿Vaciar toda la llave del torneo?')) {
-        if (isServerConnected) {
-          sendServerAction('/api/bracket/reset', {});
-        } else {
-          bracketState = {};
-          activeMatch = null;
-          votes = {};
-          saveToLocalStorage();
-          updateAllSlotsDOM();
-          renderActiveDuelPanel();
-          renderSidebar();
-        }
-        showToast('Llave reiniciada');
-      }
+      if (!confirm('¿Vaciar toda la llave del torneo?')) return;
+      bracketState = {};
+      activeMatch = null;
+      votes = {};
+
+      saveToLocalStorage();
+      sendServerAction('/api/bracket/reset', {});
+      refreshAllViews();
+      showToast('🗑️ Llave vaciada');
     });
   }
 
-  // Print
+  // Print button
   const btnPrint = document.getElementById('btn-print');
-  if (btnPrint) btnPrint.addEventListener('click', () => window.print());
-
-  // Search input (Lupa)
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => renderSidebar());
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => {
+      setZoom(1.0);
+      setTimeout(() => window.print(), 200);
+    });
   }
 
-  // Custom alfajor form
+  // Add custom alfajor (Sin fotos)
   const customForm = document.getElementById('custom-form');
   if (customForm) {
     customForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const inputName = document.getElementById('custom-name');
-      const inputImg = document.getElementById('custom-img');
       const name = inputName ? inputName.value.trim() : '';
-      const img = inputImg ? inputImg.value.trim() : '';
       if (!name) return;
 
-      if (isServerConnected) {
-        sendServerAction('/api/alfajor/add', { name, img });
-      } else {
-        const newAlf = {
-          id: 'custom-' + Date.now(),
-          name: name.toUpperCase(),
-          desc: 'Alfajor personalizado',
-          cat: 'pedidos',
-          badge: 'Custom',
-          code: name.substring(0, 3).toUpperCase(),
-          img: img || 'images/alfajor-default.webp'
-        };
-        ALFAJORES_DATA.unshift(newAlf);
-        saveToLocalStorage();
-        renderSidebar();
-      }
+      const newAlf = {
+        id: 'custom-' + Date.now(),
+        name: name.toUpperCase(),
+        desc: 'Alfajor personalizado',
+        cat: 'personalizado',
+        badge: 'Custom',
+        code: name.substring(0, 3).toUpperCase()
+      };
+
+      ALFAJORES_DATA.unshift(newAlf);
+      saveToLocalStorage();
+      sendServerAction('/api/alfajor/add', { name });
 
       if (inputName) inputName.value = '';
-      if (inputImg) inputImg.value = '';
-      showToast(`Alfajor "${name}" agregado`);
+      refreshAllViews();
+      showToast(`✨ Alfajor "${newAlf.name}" agregado`);
     });
   }
 
-  // Render initial 32 bracket
-  build32Bracket();
-  renderSidebar();
-  renderActiveDuelPanel();
-
-  // Connect to server
-  initWebSocket();
-
-  // Initial fit
+  refreshAllViews();
   setTimeout(fitToScreen, 200);
 });
