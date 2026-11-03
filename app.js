@@ -1,4 +1,4 @@
-// 64 Argentine Alfajores Catalog (Sin imágenes / Rendimiento ultra rápido)
+// 64 Argentine Alfajores Catalog (Sin imágenes / Monogramas de alto contraste)
 const DEFAULT_ALFAJORES_64 = [
   { id: "terrabusi-blanco", name: "TERRABUSI BLANCO", desc: "Bañado en repostería blanca clásica", cat: "kiosco", badge: "Blanco", code: "TB" },
   { id: "milka-oreo", name: "MILKA OREO", desc: "Galletita Oreo y crema Milka suave", cat: "kiosco", badge: "Oreo", code: "MO" },
@@ -83,10 +83,11 @@ let socket = null;
 let networkInfo = { ip: 'localhost', port: 3000, url: window.location.origin, qr: '' };
 let connectedCount = 1;
 
+let tournamentSize = 64; // Default to 64 (32avos), or can toggle to 32
 let ALFAJORES_DATA = [...DEFAULT_ALFAJORES_64];
 let bracketState = {};
-let activeMatch = null; // { matchKey, slotA, slotB, label }
-let votes = {}; // { [matchKey]: { [slotId]: [voterIds...] } }
+let activeMatch = null;
+let votes = {};
 
 let progressionMap = {};
 let initialSlotsList = [];
@@ -94,7 +95,20 @@ let zoomLevel = 0.85;
 let selectedAlfajorForPlacement = null;
 let currentDragPayload = null;
 
-// Toast helper
+const PITCH_0 = 80;
+const MATCH_H = 68;
+const HEADER_OFFSET = 30;
+
+function calcMatchTop(m, r) {
+  const offset = PITCH_0 * (Math.pow(2, r) - 1) / 2;
+  const pitch = PITCH_0 * Math.pow(2, r);
+  return HEADER_OFFSET + offset + m * pitch;
+}
+
+function calcMatchCenter(m, r) {
+  return calcMatchTop(m, r) + MATCH_H / 2;
+}
+
 function showToast(msg) {
   const toast = document.getElementById('toast');
   if (!toast) return;
@@ -104,9 +118,7 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => { toast.style.display = 'none'; }, 2800);
 }
 
-// ============================================================
-// WEBSOCKET & STATE SYNC
-// ============================================================
+// WebSocket & State Sync
 function initWebSocket() {
   const isHttp = window.location.protocol.startsWith('http');
   if (!isHttp) {
@@ -120,7 +132,6 @@ function initWebSocket() {
 
   try {
     socket = new WebSocket(wsUrl);
-
     socket.onopen = () => {
       isServerConnected = true;
       updateConnectionBadge(true);
@@ -133,7 +144,7 @@ function initWebSocket() {
           handleIncomingState(msg.state, msg.network, msg.connectedCount);
         }
       } catch (e) {
-        console.error('Error handling WebSocket message', e);
+        console.error('WebSocket parse error', e);
       }
     };
 
@@ -158,11 +169,9 @@ function updateConnectionBadge(connected) {
   if (connected) {
     pill.className = 'connection-pill live';
     pill.innerHTML = `<span class="dot"></span> <span>EN VIVO (${connectedCount} disp.)</span>`;
-    pill.title = 'Sincronizado en tiempo real por WebSocket';
   } else {
     pill.className = 'connection-pill';
     pill.innerHTML = `<span>🟡</span> <span>MODO LOCAL</span>`;
-    pill.title = 'Guardado en la memoria de este navegador';
   }
 }
 
@@ -171,6 +180,9 @@ function handleIncomingState(state, net, count) {
   if (net) networkInfo = net;
 
   if (state) {
+    if (state.size && (state.size === 32 || state.size === 64)) {
+      tournamentSize = state.size;
+    }
     if (Array.isArray(state.alfajores) && state.alfajores.length > 0) {
       ALFAJORES_DATA = state.alfajores;
     }
@@ -179,6 +191,8 @@ function handleIncomingState(state, net, count) {
     votes = state.votes || {};
 
     saveToLocalStorage();
+    updateSizeButtonsUI();
+    buildBracket(tournamentSize);
     refreshAllViews();
   }
 }
@@ -188,28 +202,26 @@ function sendServerAction(url, payload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).catch(() => {
-    // If offline or on static Vercel, state already preserved in localStorage
-  });
+  }).catch(() => {});
 }
 
-// ============================================================
-// LOCAL STORAGE PERSISTENCE FALLBACK
-// ============================================================
 function saveToLocalStorage() {
   try {
-    localStorage.setItem('mundial_bracket_state_64', JSON.stringify(bracketState));
-    localStorage.setItem('mundial_alfajores_64', JSON.stringify(ALFAJORES_DATA));
-    localStorage.setItem('mundial_active_match_64', JSON.stringify(activeMatch));
-    localStorage.setItem('mundial_votes_64', JSON.stringify(votes));
-  } catch (e) {
-    console.warn('LocalStorage save error', e);
-  }
+    localStorage.setItem(`mundial_size`, tournamentSize.toString());
+    localStorage.setItem(`mundial_bracket_state_${tournamentSize}`, JSON.stringify(bracketState));
+    localStorage.setItem(`mundial_alfajores_64`, JSON.stringify(ALFAJORES_DATA));
+    localStorage.setItem(`mundial_active_match_${tournamentSize}`, JSON.stringify(activeMatch));
+    localStorage.setItem(`mundial_votes_${tournamentSize}`, JSON.stringify(votes));
+  } catch (e) {}
 }
 
 function loadFromLocalStorage() {
   try {
-    const defaultMap = new Map(DEFAULT_ALFAJORES_64.map(a => [a.id, a]));
+    const savedSize = localStorage.getItem('mundial_size');
+    if (savedSize === '32' || savedSize === '64') {
+      tournamentSize = parseInt(savedSize, 10);
+    }
+
     const savedAlf = localStorage.getItem('mundial_alfajores_64');
     if (savedAlf) {
       const parsed = JSON.parse(savedAlf);
@@ -219,22 +231,18 @@ function loadFromLocalStorage() {
       }
     }
 
-    const savedBracket = localStorage.getItem('mundial_bracket_state_64');
+    const savedBracket = localStorage.getItem(`mundial_bracket_state_${tournamentSize}`);
     if (savedBracket) bracketState = JSON.parse(savedBracket);
 
-    const savedActive = localStorage.getItem('mundial_active_match_64');
+    const savedActive = localStorage.getItem(`mundial_active_match_${tournamentSize}`);
     if (savedActive) activeMatch = JSON.parse(savedActive);
 
-    const savedVotes = localStorage.getItem('mundial_votes_64');
+    const savedVotes = localStorage.getItem(`mundial_votes_${tournamentSize}`);
     if (savedVotes) votes = JSON.parse(savedVotes);
-  } catch (e) {
-    console.warn('LocalStorage load error', e);
-  }
+  } catch (e) {}
 }
 
-// ============================================================
-// ACTIVE DUEL / "PARTIDO DE HOY"
-// ============================================================
+// Active Duel of the Day
 function renderActiveDuelBanner() {
   const panel = document.getElementById('active-duel-panel');
   if (!panel) return;
@@ -243,7 +251,7 @@ function renderActiveDuelBanner() {
     panel.innerHTML = `
       <div class="duel-banner-empty">
         <span>⚔️ <strong>Partido de hoy:</strong> Ningún duelo seleccionado aún.</span>
-        <span style="font-size: 11.5px; color: #64748b;">Hacé clic en <strong>⚔️ Jugar hoy</strong> en cualquier partido de la llave.</span>
+        <span style="font-size: 11px; color: #64748b;">Hacé clic en el botón <strong>⚔️</strong> de cualquier partido de la llave para abrir la votación.</span>
       </div>
     `;
     return;
@@ -292,7 +300,7 @@ function renderActiveDuelBanner() {
           <div class="duel-info">
             <div class="duel-name">${alfA ? escapeHtml(alfA.name) : 'Esperando rival...'}</div>
             ${alfA ? `<span class="duel-badge">${escapeHtml(alfA.badge || 'Alfajor')}</span>` : ''}
-            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;">
+            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 5px;">
               ${votesA} votos (${pctA}%)
             </div>
             ${alfA ? `
@@ -306,7 +314,7 @@ function renderActiveDuelBanner() {
         <!-- Middle Controls -->
         <div class="duel-middle">
           <div class="vs-circle">VS</div>
-          <button class="btn-finish-duel" onclick="finishActiveMatchPrompt()" title="Cerrar votación y avanzar automáticamente al más votado a la siguiente ronda">
+          <button class="btn-finish-duel" onclick="finishActiveMatchPrompt()" title="Cerrar votación y avanzar al más votado">
             🏁 Definir Ganador
           </button>
         </div>
@@ -317,7 +325,7 @@ function renderActiveDuelBanner() {
           <div class="duel-info">
             <div class="duel-name">${alfB ? escapeHtml(alfB.name) : 'Esperando rival...'}</div>
             ${alfB ? `<span class="duel-badge">${escapeHtml(alfB.badge || 'Alfajor')}</span>` : ''}
-            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px;">
+            <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 5px;">
               ${votesB} votos (${pctB}%)
             </div>
             ${alfB ? `
@@ -392,7 +400,7 @@ window.finishActiveMatchPrompt = function () {
   let winnerSlot = slotA;
   if (countB > countA) winnerSlot = slotB;
   else if (countA === countB) {
-    const confirmA = confirm(`Empate (${countA} a ${countB}). ¿Gana "${alfA.name}"? (Aceptar = Sí, Cancelar = Gana "${alfB.name}")`);
+    const confirmA = confirm(`Empate (${countA} a ${countB}). ¿Gana "${alfA.name}"?`);
     winnerSlot = confirmA ? slotA : slotB;
   }
 
@@ -418,58 +426,64 @@ function finishMatchWithWinner(matchKey, winnerSlot) {
     triggerConfetti();
     showToast(`🏆 ¡${winnerAlfajor.name} ES EL GRAN CAMPEÓN DEL MUNDIAL! 🏆`);
   } else {
-    showToast(`🎉 ¡Ganó ${winnerAlfajor.name} y avanzó a la siguiente ronda!`);
+    showToast(`🎉 ¡Ganó ${winnerAlfajor.name} y avanzó!`);
   }
 }
 
 // ============================================================
-// BRACKET GENERATION (64 TEAMS / 32AVOS)
+// MATHEMATICAL TOURNAMENT TREE BRACKET WITH SVG CONNECTORS
 // ============================================================
-function build64Bracket() {
+function getRoundsConfig(size) {
+  if (size === 64) {
+    return [
+      { name: '32avos', matches: 16, isInitial: true },
+      { name: '16avos', matches: 8, isInitial: false },
+      { name: 'Octavos', matches: 4, isInitial: false },
+      { name: 'Cuartos', matches: 2, isInitial: false },
+      { name: 'Semis', matches: 1, isInitial: false }
+    ];
+  } else {
+    return [
+      { name: '16avos', matches: 8, isInitial: true },
+      { name: 'Octavos', matches: 4, isInitial: false },
+      { name: 'Cuartos', matches: 2, isInitial: false },
+      { name: 'Semis', matches: 1, isInitial: false }
+    ];
+  }
+}
+
+function buildBracket(size = tournamentSize) {
+  tournamentSize = size;
   const stageEl = document.getElementById('bracket-stage');
   if (!stageEl) return;
   stageEl.innerHTML = '';
   initialSlotsList = [];
   progressionMap = {};
 
-  // Rounds for 64 tournament (starting at 32avos):
-  // 32avos: 16 matches per side (32 slots)
-  // 16avos: 8 matches per side (16 slots)
-  // Octavos: 4 matches per side (8 slots)
-  // Cuartos: 2 matches per side (4 slots)
-  // Semifinales: 1 match per side (2 slots)
-  const roundsConfig = [
-    { name: '32avos', matches: 16, isInitial: true },
-    { name: '16avos', matches: 8, isInitial: false },
-    { name: 'Octavos', matches: 4, isInitial: false },
-    { name: 'Cuartos', matches: 2, isInitial: false },
-    { name: 'Semifinal', matches: 1, isInitial: false }
-  ];
+  const rounds = getRoundsConfig(size);
+  const initialMatchesPerSide = rounds[0].matches;
+  const colHeight = initialMatchesPerSide * PITCH_0 + HEADER_OFFSET + 20;
 
-  const colHeight = 16 * 105;
-
-  // Render Left Half
+  // 1. Build Left Half
   const leftHalf = document.createElement('div');
   leftHalf.className = 'bracket-half left';
 
-  roundsConfig.forEach((rnd, rIdx) => {
+  rounds.forEach((rnd, rIdx) => {
     const col = document.createElement('div');
     col.className = 'round-column';
     col.style.height = `${colHeight}px`;
 
-    const title = document.createElement('div');
-    title.className = 'round-title';
-    title.textContent = `${rnd.name} (Izq)`;
-    col.appendChild(title);
-
-    const matchupsContainer = document.createElement('div');
-    matchupsContainer.className = 'matchups-container';
+    const header = document.createElement('div');
+    header.className = 'round-header';
+    header.textContent = `${rnd.name} (Izq)`;
+    col.appendChild(header);
 
     for (let m = 0; m < rnd.matches; m++) {
       const matchDiv = document.createElement('div');
       matchDiv.className = 'matchup';
       const matchKey = `L_R${rIdx}_M${m}`;
       matchDiv.dataset.matchKey = matchKey;
+      matchDiv.style.top = `${calcMatchTop(m, rIdx)}px`;
 
       const slotAId = `${matchKey}_A`;
       const slotBId = `${matchKey}_B`;
@@ -480,7 +494,7 @@ function build64Bracket() {
       }
 
       // Progression calculation
-      if (rIdx < roundsConfig.length - 1) {
+      if (rIdx < rounds.length - 1) {
         const nextMatch = Math.floor(m / 2);
         const nextLetter = (m % 2 === 0) ? 'A' : 'B';
         const nextSlotId = `L_R${rIdx + 1}_M${nextMatch}_${nextLetter}`;
@@ -492,27 +506,60 @@ function build64Bracket() {
       }
 
       matchDiv.innerHTML = `
+        <div class="match-header-row">
+          <span class="match-code-tag">${rnd.name} · M${m + 1}</span>
+          <button class="btn-match-play" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Izq) M${m + 1}')" title="Jugar este partido hoy">
+            ⚔️ Jugar
+          </button>
+        </div>
         <div class="bracket-slot" data-slot-id="${slotAId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}A</span>
         </div>
-        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Izq) - Duelo ${m + 1}')" title="Seleccionar para votar hoy">
-          ⚔️ Jugar hoy
-        </button>
         <div class="bracket-slot" data-slot-id="${slotBId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}B</span>
         </div>
       `;
 
-      matchupsContainer.appendChild(matchDiv);
+      col.appendChild(matchDiv);
     }
 
-    col.appendChild(matchupsContainer);
     leftHalf.appendChild(col);
+
+    // Add SVG connector to next round
+    if (rIdx < rounds.length - 1) {
+      const nextCount = rounds[rIdx + 1].matches;
+      const connectorCol = document.createElement('div');
+      connectorCol.className = 'connector-column';
+      connectorCol.style.height = `${colHeight}px`;
+
+      let svg = `<svg width="32" height="${colHeight}" xmlns="http://www.w3.org/2000/svg">`;
+      for (let k = 0; k < nextCount; k++) {
+        const y1 = calcMatchCenter(2 * k, rIdx);
+        const y2 = calcMatchCenter(2 * k + 1, rIdx);
+        const yMid = calcMatchCenter(k, rIdx + 1);
+        svg += `<path d="M 0,${y1} H 16 V ${y2} H 0 M 16,${yMid} H 32" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />`;
+      }
+      svg += `</svg>`;
+      connectorCol.innerHTML = svg;
+      leftHalf.appendChild(connectorCol);
+    }
   });
+
+  // Connector between Left Semifinal and Final
+  const leftFinalConnector = document.createElement('div');
+  leftFinalConnector.className = 'connector-column';
+  leftFinalConnector.style.height = `${colHeight}px`;
+  const ySemiLeft = calcMatchCenter(0, rounds.length - 1);
+  leftFinalConnector.innerHTML = `
+    <svg width="32" height="${colHeight}" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 0,${ySemiLeft} H 32" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round" />
+    </svg>
+  `;
+  leftHalf.appendChild(leftFinalConnector);
 
   stageEl.appendChild(leftHalf);
 
-  // Render Center (Final & Champion)
+  // 2. Build Center (Gran Final & Campeón)
   const centerDiv = document.createElement('div');
   centerDiv.className = 'bracket-center';
   centerDiv.style.height = `${colHeight}px`;
@@ -521,55 +568,66 @@ function build64Bracket() {
   progressionMap['FINAL_R'] = 'CHAMPION';
 
   centerDiv.innerHTML = `
-    <!-- Champion Box -->
-    <div class="champion-box">
-      <div class="trophy-badge">🏆</div>
-      <div class="champion-label">CAMPEÓN DEL MUNDIAL</div>
-      <div class="bracket-slot champion-slot" data-slot-id="CHAMPION">
-        <span class="slot-placeholder">👑 Gran Campeón</span>
+    <div class="center-stage-container" style="top: ${ySemiLeft}px;">
+      <div class="champion-box">
+        <div class="trophy-badge">🏆</div>
+        <div class="champion-label">GRAN CAMPEÓN</div>
+        <div class="bracket-slot champion-slot" data-slot-id="CHAMPION">
+          <span class="slot-placeholder">👑 Campeón del Mundial</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Final Box -->
-    <div class="final-box">
-      <div class="round-title" style="width: 100%; margin-bottom: 4px;">GRAN FINAL</div>
-      <div class="bracket-slot" data-slot-id="FINAL_L">
-        <span class="slot-placeholder">Ganador Semifinal Izq</span>
-      </div>
-      <button class="btn-select-match" onclick="selectMatchForToday('FINAL_MATCH', 'FINAL_L', 'FINAL_R', 'GRAN FINAL DEL MUNDIAL')" title="Seleccionar la Gran Final">
-        ⚔️ Jugar Gran Final
-      </button>
-      <div class="vs-tag-bracket">VS</div>
-      <div class="bracket-slot" data-slot-id="FINAL_R">
-        <span class="slot-placeholder">Ganador Semifinal Der</span>
+      <div class="final-box">
+        <div class="round-header" style="width: 100%; border: none; margin-bottom: 2px;">GRAN FINAL</div>
+        <div class="bracket-slot" data-slot-id="FINAL_L">
+          <span class="slot-placeholder">Ganador Semifinal Izq</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 4px;">
+          <div class="vs-tag-bracket">VS</div>
+          <button class="btn-match-play" onclick="selectMatchForToday('FINAL_MATCH', 'FINAL_L', 'FINAL_R', 'GRAN FINAL DEL MUNDIAL')" title="Jugar Gran Final">
+            ⚔️ Jugar Final
+          </button>
+        </div>
+        <div class="bracket-slot" data-slot-id="FINAL_R">
+          <span class="slot-placeholder">Ganador Semifinal Der</span>
+        </div>
       </div>
     </div>
   `;
 
   stageEl.appendChild(centerDiv);
 
-  // Render Right Half
+  // 3. Build Right Half
   const rightHalf = document.createElement('div');
   rightHalf.className = 'bracket-half right';
 
-  roundsConfig.forEach((rnd, rIdx) => {
+  // Connector between Right Semifinal and Final
+  const rightFinalConnector = document.createElement('div');
+  rightFinalConnector.className = 'connector-column';
+  rightFinalConnector.style.height = `${colHeight}px`;
+  rightFinalConnector.innerHTML = `
+    <svg width="32" height="${colHeight}" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 32,${ySemiLeft} H 0" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round" />
+    </svg>
+  `;
+  rightHalf.appendChild(rightFinalConnector);
+
+  rounds.forEach((rnd, rIdx) => {
     const col = document.createElement('div');
     col.className = 'round-column';
     col.style.height = `${colHeight}px`;
 
-    const title = document.createElement('div');
-    title.className = 'round-title';
-    title.textContent = `${rnd.name} (Der)`;
-    col.appendChild(title);
-
-    const matchupsContainer = document.createElement('div');
-    matchupsContainer.className = 'matchups-container';
+    const header = document.createElement('div');
+    header.className = 'round-header';
+    header.textContent = `${rnd.name} (Der)`;
+    col.appendChild(header);
 
     for (let m = 0; m < rnd.matches; m++) {
       const matchDiv = document.createElement('div');
       matchDiv.className = 'matchup';
       const matchKey = `R_R${rIdx}_M${m}`;
       matchDiv.dataset.matchKey = matchKey;
+      matchDiv.style.top = `${calcMatchTop(m, rIdx)}px`;
 
       const slotAId = `${matchKey}_A`;
       const slotBId = `${matchKey}_B`;
@@ -580,7 +638,7 @@ function build64Bracket() {
       }
 
       // Progression calculation
-      if (rIdx < roundsConfig.length - 1) {
+      if (rIdx < rounds.length - 1) {
         const nextMatch = Math.floor(m / 2);
         const nextLetter = (m % 2 === 0) ? 'A' : 'B';
         const nextSlotId = `R_R${rIdx + 1}_M${nextMatch}_${nextLetter}`;
@@ -592,22 +650,43 @@ function build64Bracket() {
       }
 
       matchDiv.innerHTML = `
+        <div class="match-header-row">
+          <span class="match-code-tag">${rnd.name} · M${m + 1}</span>
+          <button class="btn-match-play" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Der) M${m + 1}')" title="Jugar este partido hoy">
+            ⚔️ Jugar
+          </button>
+        </div>
         <div class="bracket-slot" data-slot-id="${slotAId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}A</span>
         </div>
-        <button class="btn-select-match" onclick="selectMatchForToday('${matchKey}', '${slotAId}', '${slotBId}', '${rnd.name} (Der) - Duelo ${m + 1}')" title="Seleccionar para votar hoy">
-          ⚔️ Jugar hoy
-        </button>
         <div class="bracket-slot" data-slot-id="${slotBId}">
           <span class="slot-placeholder">${rnd.name} ${m + 1}B</span>
         </div>
       `;
 
-      matchupsContainer.appendChild(matchDiv);
+      col.appendChild(matchDiv);
     }
 
-    col.appendChild(matchupsContainer);
     rightHalf.appendChild(col);
+
+    // Add SVG connector to next round
+    if (rIdx < rounds.length - 1) {
+      const nextCount = rounds[rIdx + 1].matches;
+      const connectorCol = document.createElement('div');
+      connectorCol.className = 'connector-column';
+      connectorCol.style.height = `${colHeight}px`;
+
+      let svg = `<svg width="32" height="${colHeight}" xmlns="http://www.w3.org/2000/svg">`;
+      for (let k = 0; k < nextCount; k++) {
+        const y1 = calcMatchCenter(2 * k, rIdx);
+        const y2 = calcMatchCenter(2 * k + 1, rIdx);
+        const yMid = calcMatchCenter(k, rIdx + 1);
+        svg += `<path d="M 32,${y1} H 16 V ${y2} H 32 M 16,${yMid} H 0" stroke="#cbd5e1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />`;
+      }
+      svg += `</svg>`;
+      connectorCol.innerHTML = svg;
+      rightHalf.appendChild(connectorCol);
+    }
   });
 
   stageEl.appendChild(rightHalf);
@@ -646,7 +725,6 @@ function handleSlotClick(slotEl) {
   if (selectedAlfajorForPlacement) {
     placeAlfajorInSlot(slotId, selectedAlfajorForPlacement);
     clearPlacementSelection();
-    return;
   }
 }
 
@@ -724,17 +802,18 @@ function renderBracketSlots() {
 }
 
 function getPlaceholderLabel(slotId) {
-  if (slotId === 'CHAMPION') return '👑 Gran Campeón';
-  if (slotId === 'FINAL_L') return 'Ganador Semifinal Izq';
-  if (slotId === 'FINAL_R') return 'Ganador Semifinal Der';
+  if (slotId === 'CHAMPION') return '👑 Campeón';
+  if (slotId === 'FINAL_L') return 'Finalista Izq';
+  if (slotId === 'FINAL_R') return 'Finalista Der';
 
   const parts = slotId.split('_'); // ['L', 'R0', 'M0', 'A']
   if (parts.length >= 4) {
     const rIdx = parseInt(parts[1].replace('R', ''), 10);
     const mIdx = parseInt(parts[2].replace('M', ''), 10) + 1;
     const letter = parts[3];
-    const names = ['32avos', '16avos', 'Octavos', 'Cuartos', 'Semis'];
-    return `${names[rIdx] || 'Ronda'} ${mIdx}${letter}`;
+    const rounds = getRoundsConfig(tournamentSize);
+    const rName = rounds[rIdx]?.name || 'Ronda';
+    return `${rName} ${mIdx}${letter}`;
   }
   return 'Vacío';
 }
@@ -747,7 +826,6 @@ function highlightActiveMatchInBracket() {
   if (mEl) mEl.classList.add('active-in-duel');
 }
 
-// Drag from Slot
 window.handleSlotDragStart = function (e, slotId) {
   const alf = bracketState[slotId];
   if (!alf) return;
@@ -755,9 +833,7 @@ window.handleSlotDragStart = function (e, slotId) {
   e.dataTransfer.setData('text/plain', JSON.stringify(alf));
 };
 
-// ============================================================
-// SIDEBAR CATALOG (SIN FOTOS, ULTRA RÁPIDO)
-// ============================================================
+// Sidebar Catalog
 function renderAlfajoresList() {
   const listEl = document.getElementById('alfajores-list');
   const countBadge = document.getElementById('count-badge');
@@ -777,7 +853,7 @@ function renderAlfajoresList() {
   listEl.innerHTML = '';
 
   if (filtered.length === 0) {
-    listEl.innerHTML = `<div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 12px;">No se encontraron alfajores</div>`;
+    listEl.innerHTML = `<div style="padding: 14px; text-align: center; color: #94a3b8; font-size: 11px;">No se encontraron alfajores</div>`;
     return;
   }
 
@@ -825,7 +901,7 @@ function updateSelectionHint() {
   if (!hint) return;
   if (selectedAlfajorForPlacement) {
     hint.className = 'selection-hint active';
-    hint.innerHTML = `👉 Hacé clic en cualquier casillero vacío para ubicar a <strong>${escapeHtml(selectedAlfajorForPlacement.name)}</strong>. <a href="javascript:clearPlacementSelection()" style="color: #854d0e; margin-left: 6px;">(Cancelar)</a>`;
+    hint.innerHTML = `👉 Hacé clic en cualquier casillero para ubicar a <strong>${escapeHtml(selectedAlfajorForPlacement.name)}</strong>. <a href="javascript:clearPlacementSelection()" style="color: #854d0e; margin-left: 6px;">(Cancelar)</a>`;
   } else {
     hint.className = 'selection-hint';
     hint.innerHTML = '';
@@ -839,7 +915,7 @@ window.clearPlacementSelection = function () {
 };
 
 window.deleteCustomAlfajor = function (id) {
-  if (!confirm('¿Eliminar este alfajor personalizado?')) return;
+  if (!confirm('¿Eliminar este alfajor?')) return;
   ALFAJORES_DATA = ALFAJORES_DATA.filter(a => a.id !== id);
   Object.keys(bracketState).forEach(slotId => {
     if (bracketState[slotId]?.id === id) delete bracketState[slotId];
@@ -850,11 +926,41 @@ window.deleteCustomAlfajor = function (id) {
   refreshAllViews();
 };
 
-// ============================================================
-// ZOOM & VIEWPORT
-// ============================================================
+// Size Switcher (32 vs 64)
+window.switchTournamentSize = function (newSize) {
+  if (newSize === tournamentSize) return;
+  if (Object.keys(bracketState).length > 0) {
+    if (!confirm(`¿Cambiar la llave a ${newSize} alfajores? Se reiniciará la distribución de casilleros.`)) return;
+  }
+
+  tournamentSize = newSize;
+  bracketState = {};
+  activeMatch = null;
+  votes = {};
+
+  saveToLocalStorage();
+  updateSizeButtonsUI();
+  buildBracket(tournamentSize);
+  refreshAllViews();
+  setTimeout(fitToScreen, 150);
+  showToast(`📐 Llave cambiada a ${tournamentSize === 64 ? '64 alfajores (32avos)' : '32 alfajores (16avos)'}`);
+};
+
+function updateSizeButtonsUI() {
+  const btn32 = document.getElementById('btn-size-32');
+  const btn64 = document.getElementById('btn-size-64');
+  const sizeBadge = document.getElementById('header-size-badge');
+
+  if (btn32) btn32.classList.toggle('active', tournamentSize === 32);
+  if (btn64) btn64.classList.toggle('active', tournamentSize === 64);
+  if (sizeBadge) {
+    sizeBadge.textContent = tournamentSize === 64 ? '64 (32avos)' : '32 (16avos)';
+  }
+}
+
+// Zoom & Viewport
 function setZoom(level) {
-  zoomLevel = Math.max(0.35, Math.min(1.8, level));
+  zoomLevel = Math.max(0.3, Math.min(1.8, level));
   const canvas = document.getElementById('bracket-canvas');
   const zoomText = document.getElementById('zoom-text');
   if (canvas) canvas.style.transform = `scale(${zoomLevel})`;
@@ -873,13 +979,11 @@ function fitToScreen() {
 
   if (stW > 0 && stH > 0) {
     const scale = Math.min(vpW / stW, vpH / stH, 1.0);
-    setZoom(Math.max(scale, 0.4));
+    setZoom(Math.max(scale, 0.35));
   }
 }
 
-// ============================================================
-// MODAL & QR
-// ============================================================
+// Modal & QR
 window.openQRModal = function () {
   const modal = document.getElementById('qr-modal');
   if (!modal) return;
@@ -902,7 +1006,6 @@ window.copyOfficeLink = function () {
   });
 };
 
-// Confetti Effect
 function triggerConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   if (!canvas) return;
@@ -912,11 +1015,11 @@ function triggerConfetti() {
 
   const pieces = [];
   const colors = ['#f59e0b', '#2563eb', '#16a34a', '#ec4899', '#8b5cf6', '#ef4444'];
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 160; i++) {
     pieces.push({
       x: Math.random() * canvas.width,
       y: Math.random() * -canvas.height,
-      w: Math.random() * 9 + 4,
+      w: Math.random() * 8 + 4,
       h: Math.random() * 6 + 4,
       color: colors[Math.floor(Math.random() * colors.length)],
       vy: Math.random() * 4 + 2,
@@ -951,7 +1054,6 @@ function triggerConfetti() {
   update();
 }
 
-// Helpers
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
@@ -968,12 +1070,11 @@ function refreshAllViews() {
   renderActiveDuelBanner();
 }
 
-// ============================================================
-// INITIALIZATION
-// ============================================================
+// Initialization
 document.addEventListener('DOMContentLoaded', () => {
   loadFromLocalStorage();
-  build64Bracket();
+  updateSizeButtonsUI();
+  buildBracket(tournamentSize);
   initWebSocket();
 
   // Search input
@@ -993,6 +1094,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const fitBtn = document.getElementById('btn-fit-screen');
   if (fitBtn) fitBtn.addEventListener('click', fitToScreen);
 
+  // Size toggle buttons
+  const btn32 = document.getElementById('btn-size-32');
+  if (btn32) btn32.addEventListener('click', () => switchTournamentSize(32));
+
+  const btn64 = document.getElementById('btn-size-64');
+  if (btn64) btn64.addEventListener('click', () => switchTournamentSize(64));
+
   // QR Modal Button
   const btnQR = document.getElementById('btn-open-qr');
   if (btnQR) btnQR.addEventListener('click', () => openQRModal());
@@ -1004,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Auto-fill all 64 slots of 32avos
+  // Auto-fill all initial slots
   const btnFill = document.getElementById('btn-fill-all');
   if (btnFill) {
     btnFill.addEventListener('click', () => {
@@ -1022,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveToLocalStorage();
       sendServerAction('/api/bracket/fill-all', {});
       refreshAllViews();
-      showToast('🎲 ¡Llave completada con los 64 alfajores!');
+      showToast(`🎲 ¡Llave completada con los ${initialSlotsList.length} alfajores!`);
     });
   }
 
@@ -1051,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Add custom alfajor (Sin fotos)
+  // Add custom alfajor
   const customForm = document.getElementById('custom-form');
   if (customForm) {
     customForm.addEventListener('submit', (e) => {
