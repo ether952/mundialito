@@ -1041,39 +1041,19 @@ main.bracket-viewport {
   <header>
     <div class="header-left">
       <div class="header-titles">
-        <h1>ðŸ† MUNDIAL DE ALFAJORES <span class="badge-size" id="header-size-badge">64 (32avos)</span></h1>
+        <h1>&#127942; MUNDIAL DE ALFAJORES <span class="badge-size" id="header-size-badge">64 (32avos)</span></h1>
       </div>
-      <div class="connection-pill" id="connection-pill" title="Estado de sincronizaciÃ³n">
-        <span>ðŸŸ¡</span> <span>CONECTANDO...</span>
+      <div class="connection-pill" id="connection-pill" title="Estado de sincronización">
+        <span class="dot"></span> <span>EN VIVO (Sincronizado)</span>
       </div>
     </div>
 
     <div class="header-actions">
-      <!-- Selector de tamaÃ±o: 32 vs 64 -->
+      <!-- Selector de tamaño: 32 vs 64 -->
       <div class="size-switcher" title="Elegir cantidad de participantes">
         <button class="btn-size-toggle" id="btn-size-32">32 Alfajores</button>
         <button class="btn-size-toggle active" id="btn-size-64">64 (32avos)</button>
       </div>
-
-      <!-- QR Button for Coworkers Mobile Devices -->
-      <button class="btn-qr" id="btn-open-qr" title="Abrir cÃ³digo QR para conectar celulares">
-        ðŸ“± Conectar Celulares
-      </button>
-
-      <!-- Fill Remaining Slots Button -->
-      <button class="btn" id="btn-fill-all" title="Llenar casilleros vacÃ­os con los alfajores">
-        ðŸŽ² Completar Llave
-      </button>
-
-      <!-- Reset Bracket Button -->
-      <button class="btn" id="btn-clear" title="Vaciar toda la llave">
-        ðŸ—‘ï¸ Vaciar
-      </button>
-
-      <!-- Print Button -->
-      <button class="btn" id="btn-print" title="Imprimir la llave">
-        ðŸ–¨ï¸ Imprimir
-      </button>
     </div>
   </header>
 
@@ -1140,26 +1120,7 @@ main.bracket-viewport {
 
   </div>
 
-  <!-- QR Code Modal -->
-  <div class="modal-overlay" id="qr-modal">
-    <div class="modal-box">
-      <button class="modal-close-btn" onclick="closeQRModal()">âœ•</button>
-      <h3 style="font-size: 17px; font-weight: 900; text-transform: uppercase;">ðŸ“± Conectar Celulares</h3>
-      <p style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
-        EscaneÃ¡ con la cÃ¡mara de tu celular conectado a la red Wi-Fi de la oficina para ver el cuadro y votar en vivo.
-      </p>
-
-      <div class="qr-image-frame">
-        <img id="qr-code-img" src="" alt="CÃ³digo QR del Mundial" />
-      </div>
-
-      <div class="qr-url-box" id="qr-url-text">http://localhost:3000</div>
-
-      <button class="btn" onclick="copyOfficeLink()" style="width: 100%; justify-content: center; padding: 8px; background: #0f172a; color: #fff;">
-        ðŸ“‹ Copiar Enlace para Compartir
-      </button>
-    </div>
-  </div>
+  
 
   <!-- Toast Notification -->
   <div id="toast"></div>
